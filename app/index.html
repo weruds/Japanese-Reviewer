@@ -1,0 +1,2087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Japanese Companion — JLPT Reviewer</title>
+<meta name="version" content="1.0">
+<script>
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('keydown', e => {
+    const k = e.key;
+    if (k === 'PrintScreen') { e.preventDefault(); return; }
+    if (k === 'F12') { e.preventDefault(); return; }
+    if (e.ctrlKey || e.metaKey) {
+      if (e.shiftKey && ['i','I','j','J','c','C'].includes(k)) { e.preventDefault(); return; }
+      if (['u','U','s','S','p','P'].includes(k)) { e.preventDefault(); return; }
+    }
+  });
+  document.addEventListener('copy', e => e.preventDefault());
+  document.addEventListener('DOMContentLoaded', () => {
+    document.documentElement.style.userSelect = 'none';
+    document.documentElement.style.webkitUserSelect = 'none';
+  });
+</script>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+  const _fbApp = firebase.initializeApp({
+    apiKey: "AIzaSyBim4icQZo1t0t21nBLSk_P4m7sdBP9W-c",
+    authDomain: "myistqbreviewer.firebaseapp.com",
+    projectId: "myistqbreviewer",
+    storageBucket: "myistqbreviewer.firebasestorage.app",
+    messagingSenderId: "463803904658",
+    appId: "1:463803904658:web:c21d4f41c9455887412c4b"
+  });
+  const _db = firebase.firestore();
+</script>
+<script src="questions-n5.js"></script>
+<script src="questions-n4.js"></script>
+<script src="questions-n3.js"></script>
+<script src="flashcards.js"></script>
+<style>
+  :root {
+    --primary: #1b0062;
+    --primary-light: #2d0a8f;
+    --accent: #c0392b;
+    --success: #2e7d32;
+    --danger: #c62828;
+    --warning: #e65100;
+    --bg: #f5f0ff;
+    --card: #ffffff;
+    --text: #1a1a2e;
+    --muted: #546e7a;
+    --border: #d5ccee;
+    --gold: #f9a825;
+    --easy: #1b5e20;
+    --medium: #e65100;
+    --hard: #b71c1c;
+    --extreme: #4a148c;
+    --bottom-nav-h: 60px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  .hidden { display: none !important; }
+
+  html { font-size: 16px; }
+  @media (min-width: 1400px) { html { font-size: 17px; } .container { max-width: 1400px; } }
+  @media (min-width: 1024px) { .container { max-width: 1200px; } }
+  @media (max-width: 1023px) { .container { max-width: 100%; padding: 20px 14px; } header h1 { font-size: 1.1rem; } }
+  @media (max-width: 767px) {
+    html { font-size: 15px; }
+    body { padding-bottom: var(--bottom-nav-h); }
+    .container { max-width: 100%; padding: 14px 12px; }
+    header { padding: 10px 14px; }
+    header h1 { font-size: 0.98rem; }
+    .card { padding: 18px 14px; }
+    .username-card { padding: 32px 22px; }
+    .results-stats { grid-template-columns: repeat(3,1fr); gap: 8px; }
+    #main-nav { display: none; }
+    #mobile-bank-wrap { display: flex !important; }
+  }
+  @media (max-width: 539px) {
+    html { font-size: 14px; }
+    .card { padding: 14px 12px; border-radius: 10px; }
+    .username-card { padding: 26px 16px; border-radius: 12px; max-width: 100%; width: 98%; }
+    .username-card h1 { font-size: 1.4rem; }
+    .btn-lg { padding: 12px 18px; font-size: 0.95rem; }
+    .mode-grid { grid-template-columns: 1fr; }
+    .results-stats { grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+    .stat-box .val { font-size: 1.3rem; }
+    .quiz-info { flex-wrap: wrap; gap: 5px; }
+    .question-text { font-size: 1rem; }
+    .option-btn { padding: 13px 14px; font-size: 0.9rem; min-height: 52px; }
+    .score-circle { width: 120px; height: 120px; }
+    .score-circle .score-pct { font-size: 2rem; }
+  }
+
+  /* ===== MOBILE BOTTOM NAV ===== */
+  #mobile-bottom-nav {
+    display: none;
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: var(--bottom-nav-h);
+    background: var(--primary); z-index: 900;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    align-items: stretch;
+  }
+  @media (max-width: 767px) { #mobile-bottom-nav { display: flex; } }
+  .mob-nav-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px; color: rgba(255,255,255,0.6); font-size: 0.68rem; font-weight: 700;
+    cursor: pointer; border: none; background: none; padding: 6px 0;
+    transition: color 0.15s, background 0.15s; -webkit-tap-highlight-color: transparent;
+  }
+  .mob-nav-btn .mob-nav-icon { font-size: 1.3rem; line-height: 1; }
+  .mob-nav-btn.active { color: white; background: rgba(255,255,255,0.1); }
+
+  #mobile-bank-wrap { display: none; gap: 4px; align-items: center; flex-wrap: wrap; }
+  .mob-bank-btn {
+    padding: 3px 7px; border-radius: 12px; border: 1.5px solid rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7);
+    cursor: pointer; font-size: 0.68rem; font-weight: 700; transition: all 0.2s;
+  }
+  .mob-bank-btn.active { background: white; color: var(--primary); border-color: white; }
+
+  /* ===== HEADER ===== */
+  header { background: linear-gradient(135deg, var(--primary) 0%, #c0392b 100%); color: white; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+  header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.5px; }
+  .user-badge { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; cursor: pointer; }
+  .user-badge-name { background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 20px; }
+  .header-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 1rem; overflow: hidden; flex-shrink: 0; }
+  .header-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* ===== LAYOUT ===== */
+  .container { max-width: 860px; margin: 0 auto; padding: 24px 16px; }
+  @media (min-width: 1024px) {
+    .container { max-width: 1200px; }
+    #screen-main .container { display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start; }
+    #main-nav { grid-column: 1 / -1; }
+    #app-sidebar { display: flex; flex-direction: column; gap: 0; position: sticky; top: 16px; }
+  }
+  @media (max-width: 1023px) { #app-sidebar { display: none; } }
+
+  /* ===== CARDS ===== */
+  .card { background: var(--card); border-radius: 12px; padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .card h2 { font-size: 1.4rem; color: var(--primary); margin-bottom: 16px; }
+
+  /* ===== BUTTONS ===== */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; text-decoration: none; }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-accent { background: var(--accent); color: white; }
+  .btn-success { background: var(--success); color: white; }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+  .btn-lg { padding: 14px 32px; font-size: 1.05rem; }
+  .btn-sm { padding: 8px 16px; font-size: 0.85rem; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* ===== LOGIN ===== */
+  #screen-username { min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; background: linear-gradient(135deg, #1b0062 0%, #6d1b7b 50%, #c0392b 100%); padding: 24px 16px 40px; }
+  @media (min-width: 540px) { #screen-username { align-items: center; } }
+  .username-card { background: white; border-radius: 16px; padding: 48px 40px; max-width: 500px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+  .username-card .logo { font-size: 3rem; margin-bottom: 12px; }
+  .username-card h1 { color: var(--primary); font-size: 1.8rem; margin-bottom: 6px; }
+  .username-card p { color: var(--muted); margin-bottom: 20px; font-size: 0.95rem; }
+  .input-group { text-align: left; margin-bottom: 16px; }
+  .input-group label { display: block; font-weight: 600; margin-bottom: 6px; color: var(--text); font-size: 0.9rem; }
+  .input-group input { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; outline: none; transition: border-color 0.2s; }
+  .input-group input:focus { border-color: var(--accent); }
+  .input-group input.error { border-color: var(--danger); }
+  .login-divider { display: flex; align-items: center; gap: 12px; margin: 16px 0; }
+  .login-divider hr { flex: 1; border: none; border-top: 1px solid var(--border); }
+  .login-divider span { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+
+  /* Level bank selector on login */
+  .level-bank-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 6px; margin-bottom: 20px; }
+  .level-bank-btn { padding: 8px 4px; border-radius: 8px; border: 2px solid var(--border); background: white; cursor: pointer; font-size: 0.78rem; font-weight: 700; color: var(--muted); transition: all 0.2s; text-align: center; }
+  .level-bank-btn .lb-jlpt { font-size: 1rem; display: block; margin-bottom: 2px; }
+  .level-bank-btn.active { border-color: var(--primary); background: var(--primary); color: white; }
+
+  /* ===== HOME ===== */
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
+  @media (max-width: 540px) { .mode-grid { grid-template-columns: 1fr; } }
+  .mode-card { border: 2px solid var(--border); border-radius: 12px; padding: 24px; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .mode-card:hover, .mode-card.selected { border-color: var(--accent); background: #fff5f5; }
+  .mode-card .icon { font-size: 2.2rem; margin-bottom: 10px; }
+  .mode-card h3 { font-size: 1.1rem; color: var(--primary); margin-bottom: 6px; }
+  .mode-card p { font-size: 0.85rem; color: var(--muted); }
+
+  /* ===== SECTION SELECTOR ===== */
+  .section-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-top: 8px; }
+  @media (max-width: 600px) { .section-grid { grid-template-columns: 1fr 1fr; } }
+  .section-card { border: 2px solid var(--border); border-radius: 10px; padding: 14px; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .section-card:hover, .section-card.selected { border-color: var(--primary); background: #f0ecff; }
+  .section-card .s-icon { font-size: 1.6rem; margin-bottom: 6px; }
+  .section-card h4 { font-size: 0.88rem; color: var(--primary); font-weight: 700; }
+  .section-card p { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+  /* ===== DIFFICULTY ===== */
+  .diff-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+  .diff-btn { padding: 10px 20px; border-radius: 20px; border: 2px solid; cursor: pointer; font-size: 0.88rem; font-weight: 600; transition: all 0.2s; background: white; }
+  .diff-btn[data-diff="easy"] { border-color: var(--easy); color: var(--easy); }
+  .diff-btn[data-diff="medium"] { border-color: var(--medium); color: var(--medium); }
+  .diff-btn[data-diff="hard"] { border-color: var(--hard); color: var(--hard); }
+  .diff-btn[data-diff="extreme"] { border-color: var(--extreme); color: var(--extreme); }
+  .diff-btn.active[data-diff="easy"] { background: var(--easy); color: white; }
+  .diff-btn.active[data-diff="medium"] { background: var(--medium); color: white; }
+  .diff-btn.active[data-diff="hard"] { background: var(--hard); color: white; }
+  .diff-btn.active[data-diff="extreme"] { background: var(--extreme); color: white; }
+  .diff-btn.active[data-diff="all"] { background: var(--accent); color: white; border-color: var(--accent); }
+
+  /* ===== QUIZ ===== */
+  .quiz-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+  .quiz-info { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .q-counter { font-size: 0.9rem; color: var(--muted); font-weight: 600; }
+  .q-section { font-size: 0.78rem; background: #f0ecff; color: var(--primary); padding: 3px 10px; border-radius: 12px; font-weight: 600; }
+  .q-level { font-size: 0.75rem; background: #fce4ec; color: var(--accent); padding: 3px 10px; border-radius: 12px; font-weight: 700; }
+  .q-diff { font-size: 0.75rem; padding: 3px 10px; border-radius: 12px; font-weight: 700; text-transform: uppercase; }
+  .q-diff.easy { background: #e8f5e9; color: var(--easy); }
+  .q-diff.medium { background: #fff3e0; color: var(--warning); }
+  .q-diff.hard { background: #ffebee; color: var(--hard); }
+  .q-diff.extreme { background: #f3e5f5; color: var(--extreme); }
+  .timer { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 20px; background: var(--primary); color: white; font-weight: 700; font-size: 1.1rem; }
+  .timer.warning { background: var(--warning); }
+  .timer.danger { background: var(--danger); animation: pulse 0.5s infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.7; } }
+  .progress-wrap { background: #e0e0e0; border-radius: 4px; height: 6px; margin-bottom: 20px; }
+  .progress-bar { background: linear-gradient(90deg, var(--primary), var(--accent)); height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+  .question-text { font-size: 1.15rem; font-weight: 600; line-height: 1.7; margin-bottom: 24px; color: var(--text); }
+  .question-japanese { font-size: 1.4rem; text-align: center; padding: 12px; background: #f9f7ff; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid var(--primary); }
+  .options-list { display: flex; flex-direction: column; gap: 12px; }
+  .option-btn { width: 100%; text-align: left; padding: 14px 18px; border: 2px solid var(--border); border-radius: 10px; background: white; cursor: pointer; font-size: 0.95rem; line-height: 1.4; transition: all 0.2s; color: var(--text); }
+  .option-btn:hover:not(:disabled) { border-color: var(--primary); background: #f0ecff; transform: translateX(4px); }
+  .option-btn.correct { border-color: var(--success); background: #e8f5e9; color: var(--success); font-weight: 600; }
+  .option-btn.wrong { border-color: var(--danger); background: #ffebee; color: var(--danger); }
+  .option-btn.revealed { border-color: var(--success); background: #e8f5e9; color: var(--success); }
+  .option-btn:disabled { cursor: default; }
+  .option-btn.selected-pending { border-color: var(--primary); background: #f0ecff; color: var(--primary); font-weight: 600; }
+  .explanation-box { margin-top: 16px; padding: 14px 16px; border-radius: 8px; background: #f0ecff; border-left: 4px solid var(--primary); font-size: 0.88rem; line-height: 1.6; color: var(--text); }
+  .explanation-box strong { color: var(--primary); }
+  .quiz-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
+
+  /* ===== RESULTS ===== */
+  .score-circle { width: 140px; height: 140px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 24px; border: 8px solid; }
+  .score-circle .score-pct { font-size: 2.4rem; font-weight: 800; }
+  .score-circle .score-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; }
+  .score-pass { border-color: var(--success); color: var(--success); }
+  .score-fail { border-color: var(--danger); color: var(--danger); }
+  .score-ok { border-color: var(--warning); color: var(--warning); }
+  .results-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px; }
+  .stat-box { text-align: center; padding: 14px; border-radius: 8px; background: var(--bg); }
+  .stat-box .val { font-size: 1.6rem; font-weight: 800; }
+  .stat-box .lbl { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+  .stat-box.correct .val { color: var(--success); }
+  .stat-box.wrong .val { color: var(--danger); }
+  .stat-box.total .val { color: var(--primary); }
+  .review-list { max-height: 600px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-right: 4px; }
+  .review-item { border-radius: 8px; padding: 14px; border-left: 4px solid; }
+  .review-item.correct { border-color: var(--success); background: #f1f8e9; }
+  .review-item.wrong { border-color: var(--danger); background: #fce4ec; }
+  .review-item .q-text { font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; }
+  .review-item .answers { font-size: 0.82rem; color: var(--muted); }
+  .review-item .answers .corr { color: var(--success); font-weight: 600; }
+  .review-item .answers .wrong-ans { color: var(--danger); font-weight: 600; }
+
+  /* ===== LEADERBOARD ===== */
+  .lb-controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; align-items: center; }
+  .lb-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+  .lb-tab { padding: 7px 16px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; font-weight: 600; border: 2px solid var(--border); background: white; color: var(--muted); transition: all 0.2s; }
+  .lb-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+  .lb-period-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .lb-period-tab { padding: 7px 14px; border-radius: 20px; cursor: pointer; font-size: 0.82rem; font-weight: 600; border: 2px solid var(--border); background: white; color: var(--muted); transition: all 0.2s; }
+  .lb-period-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .lb-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .lb-table th { background: var(--primary); color: white; padding: 10px 14px; text-align: left; font-weight: 600; font-size: 0.82rem; }
+  .lb-table th:first-child { border-radius: 8px 0 0 0; }
+  .lb-table th:last-child { border-radius: 0 8px 0 0; }
+  .lb-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .lb-table tr:hover td { background: #f5f5f5; }
+  .lb-table tr.highlight td { background: #fff9f0; font-weight: 700; }
+  .score-badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; }
+  .score-badge.pass { background: #e8f5e9; color: var(--success); }
+  .score-badge.fail { background: #ffebee; color: var(--danger); }
+  .score-badge.ok { background: #fff3e0; color: var(--warning); }
+  .no-data { text-align: center; color: var(--muted); padding: 40px; font-style: italic; }
+
+  /* ===== EXAM INFO ===== */
+  .info-box { background: #f0ecff; border-radius: 10px; padding: 16px 20px; margin-bottom: 16px; }
+  .info-box h4 { color: var(--primary); margin-bottom: 10px; font-size: 0.95rem; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .info-item { font-size: 0.85rem; color: var(--text); }
+  .info-item span { font-weight: 700; color: var(--primary); }
+  .pass-info { font-size: 0.85rem; color: var(--success); font-weight: 700; margin-top: 8px; }
+
+  /* ===== NAV ===== */
+  .nav-menu { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .nav-item { padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.88rem; font-weight: 600; transition: all 0.2s; border: 2px solid transparent; color: var(--muted); }
+  .nav-item:hover { color: var(--primary); }
+  .nav-item.active { background: white; color: var(--primary); border-color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+  /* ===== PROFILE MODAL ===== */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .modal-box { background: white; border-radius: 16px; padding: 32px; max-width: 420px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+  .modal-box h3 { color: var(--primary); font-size: 1.3rem; margin-bottom: 20px; }
+  .avatar-upload-area { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .avatar-preview { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--border); object-fit: cover; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 2rem; overflow: hidden; cursor: pointer; }
+  .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+  #avatar-file-input { display: none; }
+  .streak-info { background: #fff8e1; border-radius: 8px; padding: 12px 16px; font-size: 0.88rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .streak-count { font-size: 1.4rem; font-weight: 800; color: #e65100; }
+
+  /* ===== TIME ATTACK ===== */
+  .ta-mode-card { border-color: #c62828 !important; }
+  .ta-mode-card:hover, .ta-mode-card.selected { border-color: #c62828 !important; background: #fce4ec !important; }
+  .ta-mode-card h3 { color: #b71c1c !important; }
+  .ta-top-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 0 6px; }
+  .ta-clock-wrap { display: flex; align-items: center; gap: 8px; font-size: 1.5rem; font-weight: 800; color: #b71c1c; }
+  .ta-streak-wrap { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; }
+  .ta-streak-val { font-size: 1.1rem; font-weight: 800; color: #e65100; }
+  .ta-pts-display { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
+  .ta-bar-track { background: #ffcdd2; border-radius: 6px; height: 10px; margin-bottom: 8px; overflow: hidden; }
+  .ta-bar-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, #c62828, #ef5350); transition: width 0.9s linear; }
+  .ta-penalty { text-align: center; font-size: 0.88rem; font-weight: 800; color: #c62828; background: #fce4ec; border-radius: 6px; padding: 4px 0; margin-bottom: 6px; animation: penaltyPop 0.4s ease; }
+  @keyframes penaltyPop { 0% { transform: scale(0.7); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+  .option-btn.ta-correct { border-color: var(--success) !important; background: #e8f5e9 !important; color: var(--success) !important; font-weight: 700 !important; }
+  .option-btn.ta-wrong { border-color: var(--danger) !important; background: #ffebee !important; color: var(--danger) !important; font-weight: 700 !important; }
+  #ta-bomb-overlay { position: fixed; inset: 0; z-index: 5000; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0); pointer-events: none; }
+  #ta-bomb-overlay.exploding { background: rgba(183,28,28,0.92); pointer-events: all; animation: overlayFlash 0.35s ease; }
+  @keyframes overlayFlash { 0% { background: rgba(255,255,0,0.9); } 40% { background: rgba(255,100,0,0.95); } 100% { background: rgba(183,28,28,0.92); } }
+  #ta-bomb-inner { text-align: center; }
+  #ta-bomb-emoji { font-size: 6rem; display: block; }
+  #ta-bomb-emoji.pre-explode { animation: preBomb 0.08s linear infinite; }
+  @keyframes preBomb { 0% { transform: translate(-4px,0) rotate(-5deg); } 50% { transform: translate(3px,3px) rotate(3deg); } 100% { transform: translate(0,0) rotate(0); } }
+  #ta-bomb-emoji.exploded { animation: explodePop 0.5s cubic-bezier(0.36,0.07,0.19,0.97) forwards; }
+  @keyframes explodePop { 0% { transform: scale(1); opacity: 1; } 30% { transform: scale(3); } 100% { transform: scale(0); opacity: 0; } }
+  #ta-times-up { font-size: 2.6rem; font-weight: 900; color: white; opacity: 0; margin-top: 12px; letter-spacing: 2px; }
+  #ta-times-up.show { animation: timesUpFade 0.5s 0.4s ease forwards; }
+  @keyframes timesUpFade { from { opacity:0; transform:scale(0.6); } to { opacity:1; transform:scale(1); } }
+  .ta-bomb-tick { display: inline-block; }
+  .ta-bomb-tick.ticking { animation: bombTick 0.4s ease-in-out infinite alternate; }
+  @keyframes bombTick { from { transform: rotate(-12deg) scale(1); } to { transform: rotate(12deg) scale(1.18); } }
+
+  /* ===== RECORDS ===== */
+  #record-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 8000; transform: translateY(-100%); transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+  #record-banner.show { transform: translateY(0); }
+  .record-banner-inner { background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); color: white; padding: 13px 20px; display: flex; align-items: center; gap: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+  .record-banner-icon { font-size: 1.6rem; flex-shrink: 0; }
+  .record-banner-text { flex: 1; font-size: 0.9rem; line-height: 1.4; }
+  .record-banner-text strong { display: block; font-size: 1rem; }
+  .record-banner-close { background: rgba(255,255,255,0.2); border: none; color: white; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; flex-shrink: 0; }
+  .rec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .rec-box { border: 2px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .rec-box.gold { border-color: #f9a825; background: #fffde7; }
+  .rec-box.blue { border-color: var(--primary); background: #f0ecff; }
+  .rec-box .rec-crown { font-size: 1.5rem; margin-bottom: 6px; display: block; }
+  .rec-box .rec-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .rec-box .rec-val { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
+  .rec-box .rec-sub { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+
+  /* ===== PREP METER ===== */
+  .prep-meter-track { background: #e0e0e0; border-radius: 8px; height: 18px; overflow: hidden; }
+  .prep-meter-fill { height: 100%; border-radius: 8px; transition: width 0.8s ease; }
+  .prep-fill-low { background: linear-gradient(90deg, #c62828, #e53935); }
+  .prep-fill-fair { background: linear-gradient(90deg, #e65100, #ff6d00); }
+  .prep-fill-good { background: linear-gradient(90deg, #f9a825, #fdd835); }
+  .prep-fill-ready { background: linear-gradient(90deg, #2e7d32, #43a047); }
+  .prep-stats { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 14px; }
+  .prep-stat .pv { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
+  .prep-stat .pl { font-size: 0.75rem; color: var(--muted); margin-top: 1px; }
+
+  /* ===== MISC ===== */
+  .fade-in { animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+  ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--primary); color: white; padding: 12px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; opacity: 0; transition: opacity 0.3s; z-index: 9999; max-width: 320px; }
+  .toast.show { opacity: 1; }
+  @media (max-width: 767px) { .toast { bottom: calc(var(--bottom-nav-h) + 10px); left: 12px; right: 12px; max-width: none; text-align: center; } }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+  .text-center { text-align: center; }
+  .mt-16 { margin-top: 16px; }
+  .mb-8 { margin-bottom: 8px; }
+  .study-note { background: #fff8e1; border: 1px solid #ffd54f; border-radius: 8px; padding: 10px 14px; font-size: 0.82rem; color: #5d4037; margin-top: 12px; }
+
+  /* JLPT level color accents in leaderboard */
+  .level-n5 { color: #1b5e20; font-weight: 700; }
+  .level-n4 { color: #1565c0; font-weight: 700; }
+  .level-n3 { color: #e65100; font-weight: 700; }
+  .level-n2 { color: #6a1b9a; font-weight: 700; }
+  .level-n1 { color: #b71c1c; font-weight: 700; }
+
+  /* Returning user chips */
+  .user-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .user-chip { padding: 6px 14px; border-radius: 20px; border: 2px solid var(--border); background: white; cursor: pointer; font-size: 0.88rem; font-weight: 600; color: var(--text); transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+  .user-chip:hover, .user-chip.selected { border-color: var(--accent); background: #fff0f0; color: var(--accent); }
+  .returning-users { text-align: left; margin-bottom: 20px; }
+  .returning-users label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--text); font-size: 0.9rem; }
+
+  /* Verify / Forgot fields */
+  #verify-fields, #forgot-fields { text-align: left; }
+
+  /* ===== FLASHCARD SECTION ===== */
+  /* Deck filter bar */
+  .fc-filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; align-items: center; }
+  .fc-filter-btn { padding: 6px 14px; border-radius: 16px; border: 2px solid var(--border); background: white; cursor: pointer; font-size: 0.82rem; font-weight: 700; color: var(--muted); transition: all 0.2s; }
+  .fc-filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+  /* Progress bar strip */
+  .fc-progress-wrap { background: #e0d8ff; border-radius: 4px; height: 7px; margin-bottom: 6px; }
+  .fc-progress-fill { background: linear-gradient(90deg, var(--primary), var(--accent)); height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+  .fc-progress-label { display: flex; justify-content: space-between; font-size: 0.76rem; color: var(--muted); margin-bottom: 16px; }
+
+  /* Stats row */
+  .fc-stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  .fc-stat { background: var(--bg); border-radius: 8px; padding: 10px 16px; text-align: center; flex: 1; min-width: 80px; }
+  .fc-stat .fsv { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
+  .fc-stat .fsl { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+  .fc-stat.known .fsv { color: var(--success); }
+  .fc-stat.again .fsv { color: var(--accent); }
+
+  /* Card stage */
+  .fc-stage { perspective: 900px; margin-bottom: 24px; }
+  .fc-card-wrap {
+    position: relative; width: 100%; height: 280px;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
+    cursor: pointer;
+  }
+  @media (max-width: 539px) { .fc-card-wrap { height: 260px; } }
+  .fc-card-wrap.flipped { transform: rotateY(180deg); }
+  .fc-face {
+    position: absolute; inset: 0;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    border-radius: 16px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 28px 24px;
+    box-shadow: 0 6px 28px rgba(0,0,0,0.12);
+  }
+  .fc-front {
+    background: linear-gradient(145deg, var(--primary) 0%, #3a0ca3 100%);
+    color: white;
+  }
+  .fc-back {
+    background: white; color: var(--text);
+    transform: rotateY(180deg);
+    border: 2px solid var(--border);
+  }
+  .fc-front .fc-section-badge {
+    position: absolute; top: 14px; left: 18px;
+    font-size: 0.7rem; font-weight: 700; padding: 3px 10px;
+    border-radius: 12px; background: rgba(255,255,255,0.18); color: rgba(255,255,255,0.9);
+  }
+  .fc-front .fc-number {
+    position: absolute; top: 14px; right: 18px;
+    font-size: 0.72rem; color: rgba(255,255,255,0.55); font-weight: 600;
+  }
+  .fc-front .fc-tap-hint {
+    position: absolute; bottom: 14px;
+    font-size: 0.72rem; color: rgba(255,255,255,0.45);
+  }
+  .fc-word { font-size: 2.4rem; font-weight: 800; text-align: center; line-height: 1.2; margin-bottom: 8px; }
+  .fc-reading { font-size: 1rem; color: rgba(255,255,255,0.75); text-align: center; }
+  .fc-back .fc-word-back { font-size: 1.6rem; font-weight: 800; color: var(--primary); text-align: center; margin-bottom: 6px; }
+  .fc-back .fc-reading-back { font-size: 0.9rem; color: var(--muted); text-align: center; margin-bottom: 12px; }
+  .fc-back .fc-meaning { font-size: 1.1rem; font-weight: 700; color: var(--text); text-align: center; margin-bottom: 10px; }
+  .fc-back .fc-example { font-size: 0.82rem; color: var(--muted); text-align: center; line-height: 1.6; padding: 8px 12px; background: var(--bg); border-radius: 8px; width: 100%; }
+  .fc-back .fc-example em { color: var(--primary); font-style: normal; font-weight: 600; }
+  .fc-back .fc-type-badge {
+    position: absolute; top: 14px; left: 18px;
+    font-size: 0.7rem; font-weight: 700; padding: 3px 10px;
+    border-radius: 12px; background: var(--bg); color: var(--muted);
+  }
+
+  /* Action buttons */
+  .fc-actions { display: flex; gap: 14px; justify-content: center; margin-bottom: 20px; }
+  .fc-btn-again {
+    flex: 1; max-width: 180px; padding: 14px; border-radius: 12px;
+    border: 2px solid var(--danger); background: #fff0f0; color: var(--danger);
+    font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .fc-btn-again:hover { background: var(--danger); color: white; }
+  .fc-btn-know {
+    flex: 1; max-width: 180px; padding: 14px; border-radius: 12px;
+    border: 2px solid var(--success); background: #f0faf0; color: var(--success);
+    font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .fc-btn-know:hover { background: var(--success); color: white; }
+  .fc-actions.hidden-btns .fc-btn-again,
+  .fc-actions.hidden-btns .fc-btn-know { opacity: 0.3; pointer-events: none; }
+
+  /* Completion card */
+  .fc-complete { text-align: center; padding: 32px 24px; }
+  .fc-complete .fc-big-emoji { font-size: 3.5rem; margin-bottom: 12px; }
+  .fc-complete h3 { color: var(--primary); font-size: 1.4rem; margin-bottom: 8px; }
+  .fc-complete p { color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.6; }
+  .fc-result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+  .fc-result-box { border-radius: 10px; padding: 14px; text-align: center; }
+  .fc-result-box.k { background: #e8f5e9; border: 2px solid var(--success); }
+  .fc-result-box.a { background: #fce4ec; border: 2px solid var(--danger); }
+  .fc-result-box .rv { font-size: 1.8rem; font-weight: 800; }
+  .fc-result-box.k .rv { color: var(--success); }
+  .fc-result-box.a .rv { color: var(--danger); }
+  .fc-result-box .rl { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+  /* Review-again mini list */
+  .fc-review-list { text-align: left; max-height: 240px; overflow-y: auto; margin-bottom: 20px; }
+  .fc-review-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; background: #fce4ec; margin-bottom: 6px; }
+  .fc-review-item .fri-word { font-size: 1.1rem; font-weight: 800; color: var(--accent); min-width: 56px; }
+  .fc-review-item .fri-meaning { font-size: 0.82rem; color: var(--muted); }
+
+  /* Keyboard hint */
+  .fc-kbd-hint { text-align: center; font-size: 0.76rem; color: var(--muted); margin-top: 8px; }
+  .fc-kbd-hint kbd { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-size: 0.72rem; }
+
+  /* Daily reset badge */
+  .fc-daily-badge { display: inline-flex; align-items: center; gap: 6px; background: #fff8e1; border: 1px solid #ffd54f; border-radius: 20px; padding: 4px 12px; font-size: 0.78rem; font-weight: 700; color: #795548; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN SCREEN ===== -->
+<div id="screen-username">
+  <div class="username-card fade-in">
+    <div class="logo">🎌</div>
+    <h1>My Japanese Companion</h1>
+    <p id="login-subtitle">JLPT N5 → N1 Practice Reviewer</p>
+
+    <!-- JLPT Level selector -->
+    <div class="level-bank-grid" id="login-level-grid">
+      <button class="level-bank-btn active" data-level="N5" onclick="App.setLevel('N5')"><span class="lb-jlpt">🟢</span>N5</button>
+      <button class="level-bank-btn" data-level="N4" onclick="App.setLevel('N4')"><span class="lb-jlpt">🔵</span>N4</button>
+      <button class="level-bank-btn" data-level="N3" onclick="App.setLevel('N3')"><span class="lb-jlpt">🟠</span>N3</button>
+      <button class="level-bank-btn" data-level="N2" onclick="App.setLevel('N2')"><span class="lb-jlpt">🟣</span>N2</button>
+      <button class="level-bank-btn" data-level="N1" onclick="App.setLevel('N1')"><span class="lb-jlpt">🔴</span>N1</button>
+    </div>
+
+    <!-- Returning users -->
+    <div id="returning-users-section" class="returning-users hidden">
+      <label>Welcome back! Select your profile:</label>
+      <div class="user-chips" id="user-chips"></div>
+    </div>
+    <div id="login-divider" class="login-divider hidden"><hr><span>or create a new profile</span><hr></div>
+
+    <!-- New user fields -->
+    <div id="new-user-fields">
+      <div class="input-group">
+        <label for="username-input">Your Name</label>
+        <input type="text" id="username-input" placeholder="e.g. Tanaka Yuki" maxlength="30" autocomplete="off">
+      </div>
+      <div class="input-group">
+        <label for="entryid-input">Entry ID <span style="font-weight:400;color:var(--muted)">(PIN — remember this!)</span></label>
+        <input type="password" id="entryid-input" placeholder="4–6 digit PIN" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+      </div>
+      <div id="secq-fields" class="hidden">
+        <div class="input-group">
+          <label>Security Question</label>
+          <select id="secq-select" style="width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:8px;font-size:0.9rem;outline:none;background:white">
+            <option value="">— Choose a question —</option>
+            <option value="pet">What was the name of your first pet?</option>
+            <option value="school">What primary school did you attend?</option>
+            <option value="city">What city were you born in?</option>
+            <option value="mother">What is your mother's maiden name?</option>
+            <option value="friend">What is the name of your childhood best friend?</option>
+            <option value="food">What is your favourite food?</option>
+            <option value="hero">Who is your childhood hero?</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="secq-answer">Your Answer</label>
+          <input type="text" id="secq-answer" placeholder="Answer (not case-sensitive)" maxlength="60" autocomplete="off">
+        </div>
+      </div>
+    </div>
+
+    <!-- Verify fields (returning user) -->
+    <div id="verify-fields" class="hidden">
+      <div class="input-group">
+        <label>Enter your Entry ID for <strong id="verify-username-display"></strong></label>
+        <input type="password" id="verify-entryid-input" placeholder="Your 4–6 digit PIN" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+      </div>
+      <div style="text-align:right;margin-top:-8px;margin-bottom:14px">
+        <button onclick="App.showForgotFlow()" style="background:none;border:none;color:var(--accent);font-size:0.82rem;cursor:pointer;font-weight:600">Forgot Entry ID?</button>
+      </div>
+      <button class="btn btn-outline btn-sm" style="margin-bottom:12px" onclick="App.cancelVerify()">← Back</button>
+    </div>
+
+    <!-- Forgot Entry ID -->
+    <div id="forgot-fields" class="hidden">
+      <div style="background:#fff8e1;border-radius:8px;padding:10px 14px;font-size:0.82rem;color:#5d4037;margin-bottom:14px">
+        🔐 Answer your security question to reset the Entry ID for <strong id="forgot-username-display"></strong>.
+      </div>
+      <div class="input-group">
+        <label id="forgot-question-label">Security Question</label>
+        <input type="text" id="forgot-answer-input" placeholder="Your answer" maxlength="60" autocomplete="off">
+      </div>
+      <div class="input-group">
+        <label>New Entry ID</label>
+        <input type="password" id="forgot-new-entry" placeholder="New 4–6 digit PIN" maxlength="6" inputmode="numeric" pattern="[0-9]*">
+      </div>
+      <div class="input-group">
+        <label>Confirm New Entry ID</label>
+        <input type="password" id="forgot-confirm-entry" placeholder="Repeat PIN" maxlength="6" inputmode="numeric" pattern="[0-9]*">
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="btn btn-primary" style="flex:1" onclick="App.submitForgot()">Reset Entry ID</button>
+        <button class="btn btn-outline btn-sm" onclick="App.cancelForgot()">← Back</button>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-lg" style="width:100%;margin-top:4px" id="btn-start" onclick="App.handleLogin()">始める (Start) →</button>
+  </div>
+</div>
+
+<!-- ===== MOBILE BOTTOM NAV ===== -->
+<div id="mobile-bottom-nav">
+  <button class="mob-nav-btn active" id="mob-nav-home" onclick="App.showSection('home')">
+    <span class="mob-nav-icon">🏠</span><span>Home</span>
+  </button>
+  <button class="mob-nav-btn" id="mob-nav-flashcards" onclick="App.showSection('flashcards')">
+    <span class="mob-nav-icon">🃏</span><span>Cards</span>
+  </button>
+  <button class="mob-nav-btn" id="mob-nav-leaderboard" onclick="App.showSection('leaderboard')">
+    <span class="mob-nav-icon">🏆</span><span>Ranks</span>
+  </button>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div id="screen-main" class="hidden">
+  <header>
+    <h1 id="app-header-title">🎌 My Japanese Companion</h1>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div id="mobile-bank-wrap">
+        <button class="mob-bank-btn active" id="mob-lvl-n5" onclick="App.setLevel('N5')">N5</button>
+        <button class="mob-bank-btn" id="mob-lvl-n4" onclick="App.setLevel('N4')">N4</button>
+        <button class="mob-bank-btn" id="mob-lvl-n3" onclick="App.setLevel('N3')">N3</button>
+        <button class="mob-bank-btn" id="mob-lvl-n2" onclick="App.setLevel('N2')">N2</button>
+        <button class="mob-bank-btn" id="mob-lvl-n1" onclick="App.setLevel('N1')">N1</button>
+      </div>
+      <div class="user-badge" onclick="App.openProfile()" title="Edit profile">
+        <div class="header-avatar" id="header-avatar-wrap">👤</div>
+        <span class="user-badge-name" id="header-username">User</span>
+      </div>
+      <button onclick="App.signOut()" title="Sign out" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);color:white;padding:6px 13px;border-radius:20px;cursor:pointer;font-size:0.8rem;font-weight:600">Sign Out</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="nav-menu" id="main-nav">
+      <div class="nav-item active" onclick="App.showSection('home')">🏠 Home</div>
+      <div class="nav-item" onclick="App.showSection('flashcards')">🃏 Flashcards</div>
+      <div class="nav-item" onclick="App.showSection('leaderboard')">🏆 Leaderboard</div>
+      <div style="margin-left:auto;display:flex;gap:5px;align-items:center;flex-wrap:wrap">
+        <button id="in-app-n5" onclick="App.setLevel('N5')" style="padding:4px 10px;border-radius:14px;border:2px solid var(--primary);background:var(--primary);color:white;cursor:pointer;font-size:0.76rem;font-weight:700">🟢 N5</button>
+        <button id="in-app-n4" onclick="App.setLevel('N4')" style="padding:4px 10px;border-radius:14px;border:2px solid var(--border);background:white;color:var(--muted);cursor:pointer;font-size:0.76rem;font-weight:700">🔵 N4</button>
+        <button id="in-app-n3" onclick="App.setLevel('N3')" style="padding:4px 10px;border-radius:14px;border:2px solid var(--border);background:white;color:var(--muted);cursor:pointer;font-size:0.76rem;font-weight:700">🟠 N3</button>
+        <button id="in-app-n2" onclick="App.setLevel('N2')" style="padding:4px 10px;border-radius:14px;border:2px solid var(--border);background:white;color:var(--muted);cursor:pointer;font-size:0.76rem;font-weight:700">🟣 N2</button>
+        <button id="in-app-n1" onclick="App.setLevel('N1')" style="padding:4px 10px;border-radius:14px;border:2px solid var(--border);background:white;color:var(--muted);cursor:pointer;font-size:0.76rem;font-weight:700">🔴 N1</button>
+      </div>
+    </div>
+
+    <!-- HOME SECTION -->
+    <div id="section-home">
+
+      <!-- Records -->
+      <div class="card fade-in" id="records-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+          <h2 style="margin:0">⚡ Your Practice Records</h2>
+          <span style="font-size:0.75rem;color:var(--muted)">Personal best · Practice mode</span>
+        </div>
+        <div id="records-body"><div style="color:var(--muted);font-size:0.88rem">Loading…</div></div>
+      </div>
+
+      <!-- Preparedness -->
+      <div class="card fade-in" id="prep-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+          <h2 style="margin:0">🎯 JLPT Preparedness</h2>
+          <span id="prep-badge" style="font-size:0.78rem;font-weight:700;padding:3px 12px;border-radius:20px"></span>
+        </div>
+        <div id="prep-body"><div style="color:var(--muted);font-size:0.88rem">Loading…</div></div>
+      </div>
+
+      <!-- Mode selector -->
+      <div class="card fade-in">
+        <h2>Choose Your Session</h2>
+        <div class="mode-grid" id="mode-grid" style="grid-template-columns:1fr 1fr 1fr">
+          <div class="mode-card selected" data-mode="practice" onclick="App.selectMode('practice')">
+            <div class="icon">📝</div>
+            <h3>Practice Mode</h3>
+            <p>20 questions · No timer · Choose section & difficulty</p>
+          </div>
+          <div class="mode-card" data-mode="exam" onclick="App.selectMode('exam')">
+            <div class="icon">🎯</div>
+            <h3>Exam Mode</h3>
+            <p>40 questions · 60 min · JLPT simulation</p>
+          </div>
+          <div class="mode-card ta-mode-card" data-mode="time-attack" onclick="App.selectMode('time-attack')">
+            <div class="icon">💣</div>
+            <h3>Time Attack</h3>
+            <p>20 questions · 90 sec · Streak bonus</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Practice options -->
+      <div class="card fade-in" id="practice-options">
+        <h2>Practice Options</h2>
+        <div class="mb-8"><strong style="font-size:0.9rem">Section:</strong></div>
+        <div class="section-grid" id="section-filter">
+          <div class="section-card selected" data-section="all" onclick="App.setSection('all')">
+            <div class="s-icon">📚</div><h4>All Sections</h4><p>Mixed practice</p>
+          </div>
+          <div class="section-card" data-section="Vocabulary" onclick="App.setSection('Vocabulary')">
+            <div class="s-icon">🔤</div><h4>Vocabulary</h4><p>Words & meaning</p>
+          </div>
+          <div class="section-card" data-section="Grammar" onclick="App.setSection('Grammar')">
+            <div class="s-icon">📐</div><h4>Grammar</h4><p>Patterns & usage</p>
+          </div>
+          <div class="section-card" data-section="Kanji" onclick="App.setSection('Kanji')">
+            <div class="s-icon">漢</div><h4>Kanji</h4><p>Characters & readings</p>
+          </div>
+          <div class="section-card" data-section="Reading" onclick="App.setSection('Reading')">
+            <div class="s-icon">📖</div><h4>Reading</h4><p>Comprehension</p>
+          </div>
+        </div>
+        <div class="mb-8" style="margin-top:16px"><strong style="font-size:0.9rem">Difficulty:</strong></div>
+        <div class="diff-grid mb-8" id="diff-filter">
+          <button class="diff-btn active" data-diff="all" onclick="App.setDiff('all')">All</button>
+          <button class="diff-btn" data-diff="easy" onclick="App.setDiff('easy')">Easy</button>
+          <button class="diff-btn" data-diff="medium" onclick="App.setDiff('medium')">Medium</button>
+          <button class="diff-btn" data-diff="hard" onclick="App.setDiff('hard')">Hard</button>
+          <button class="diff-btn" data-diff="extreme" onclick="App.setDiff('extreme')">Extreme</button>
+        </div>
+        <div class="study-note">💡 <strong>Study Tip:</strong> Select an answer, then use <strong>Next →</strong> or <strong>← Back</strong> to review. Explanations show after you answer.</div>
+      </div>
+
+      <!-- Exam options -->
+      <div class="card fade-in hidden" id="exam-options">
+        <h2>Exam Mode Details</h2>
+        <div class="info-box">
+          <h4>📌 JLPT Simulation — <span id="exam-level-display">N5</span></h4>
+          <div class="info-grid">
+            <div class="info-item">Questions: <span>40</span></div>
+            <div class="info-item">Duration: <span>60 minutes</span></div>
+            <div class="info-item">Format: <span>Multiple Choice</span></div>
+            <div class="info-item">Sections: <span>All 4 Sections</span></div>
+          </div>
+          <div class="pass-info">✓ Passing score: 70% (28/40 correct)</div>
+        </div>
+        <div class="info-box" style="background:#fff3e0;margin-top:12px">
+          <strong style="color:var(--warning)">⚠ Exam Mode Rules:</strong>
+          <ul style="margin-top:8px;padding-left:20px;font-size:0.85rem;line-height:1.8">
+            <li>No explanations during the exam</li>
+            <li>You can go back to change answers before submitting</li>
+            <li>Timer runs continuously — auto-submits when time expires</li>
+            <li>Full review with explanations shown after completion</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Time Attack options -->
+      <div class="card fade-in hidden" id="ta-options">
+        <h2 style="color:#b71c1c">💣 Time Attack</h2>
+        <div class="info-box" style="background:#fce4ec;border-left:4px solid #c62828">
+          <h4 style="color:#b71c1c">⚡ Rules</h4>
+          <div class="info-grid" style="margin-bottom:10px">
+            <div class="info-item">Questions: <span>20</span></div>
+            <div class="info-item">Time: <span>90 seconds</span></div>
+          </div>
+          <ul style="padding-left:20px;font-size:0.85rem;line-height:2">
+            <li><strong>First click is final</strong> — no going back</li>
+            <li>❌ Wrong answer deducts <strong>8 seconds</strong></li>
+            <li>✅ Correct streak earns bonus points (+3/+4/+5)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="text-center mt-16">
+        <button class="btn btn-primary btn-lg" onclick="App.startSession()">Start Session →</button>
+      </div>
+    </div>
+
+    <!-- QUIZ SECTION -->
+    <div id="section-quiz" class="hidden">
+      <div id="ta-bomb-overlay" class="hidden">
+        <div id="ta-bomb-inner">
+          <div id="ta-bomb-emoji">💣</div>
+          <div id="ta-times-up">💥 Time's Up!</div>
+        </div>
+      </div>
+      <div class="card fade-in">
+        <div id="ta-header" class="hidden">
+          <div class="ta-top-bar">
+            <div class="ta-clock-wrap">
+              <span id="ta-bomb-icon" class="ta-bomb-tick">💣</span>
+              <span id="ta-clock">1:30</span>
+            </div>
+            <div class="ta-streak-wrap">
+              Streak: <span id="ta-streak-count" class="ta-streak-val">0</span>
+              &nbsp;Pts: <span id="ta-points-val" class="ta-pts-display">0</span>
+            </div>
+          </div>
+          <div class="ta-bar-track"><div class="ta-bar-fill" id="ta-bar-fill"></div></div>
+          <div id="ta-penalty-msg" class="ta-penalty hidden">−8 seconds!</div>
+        </div>
+        <div class="quiz-header">
+          <div class="quiz-info">
+            <span class="q-counter" id="q-counter">Q 1 / 20</span>
+            <span class="q-level" id="q-level">N5</span>
+            <span class="q-section" id="q-section">Vocabulary</span>
+            <span class="q-diff easy" id="q-diff">easy</span>
+          </div>
+          <div id="timer-wrap" class="hidden">
+            <div class="timer" id="timer-display">⏱ 60:00</div>
+          </div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+        </div>
+        <div class="question-text" id="question-text"></div>
+        <div class="options-list" id="options-list"></div>
+        <div class="explanation-box hidden" id="explanation-box"></div>
+        <div class="quiz-nav">
+          <button class="btn btn-outline" id="btn-quit" onclick="App.confirmQuit()">⬅ Quit</button>
+          <div style="display:flex;gap:10px;align-items:center">
+            <button class="btn btn-outline hidden" id="btn-back" onclick="App.prevQuestion()">← Back</button>
+            <button class="btn btn-primary hidden" id="btn-next" onclick="App.nextQuestion()">Next →</button>
+            <button class="btn btn-success hidden" id="btn-finish" onclick="App.finishSession()">Finish ✓</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTS SECTION -->
+    <div id="section-results" class="hidden">
+      <div class="card fade-in text-center">
+        <h2 id="results-title">Session Complete!</h2>
+        <div class="score-circle" id="score-circle">
+          <div class="score-pct" id="score-pct">0%</div>
+          <div class="score-label" id="score-label">Score</div>
+        </div>
+        <div class="results-stats">
+          <div class="stat-box correct"><div class="val" id="stat-correct">0</div><div class="lbl">Correct</div></div>
+          <div class="stat-box wrong"><div class="val" id="stat-wrong">0</div><div class="lbl">Incorrect</div></div>
+          <div class="stat-box total"><div class="val" id="stat-total">0</div><div class="lbl">Total</div></div>
+        </div>
+        <div id="pass-fail-msg" style="font-size:1rem;font-weight:700;margin-bottom:16px"></div>
+        <div id="time-taken-display" class="hidden" style="font-size:0.88rem;color:var(--muted);margin-bottom:16px"></div>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="App.startSession()">Retry Session</button>
+          <button class="btn btn-outline" onclick="App.showSection('home')">Home</button>
+          <button class="btn btn-outline" onclick="App.showSection('leaderboard')">🏆 Leaderboard</button>
+        </div>
+      </div>
+      <div class="card fade-in">
+        <h2>Review Answers</h2>
+        <div class="review-list" id="review-list"></div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div id="app-sidebar">
+      <div class="card fade-in" style="margin-bottom:16px">
+        <h2 style="font-size:1rem;margin-bottom:14px">📊 Your Stats</h2>
+        <div id="sidebar-stats" style="color:var(--muted);font-size:0.85rem">Loading…</div>
+      </div>
+      <div class="card fade-in" style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <h2 style="font-size:1rem;margin:0">🏆 Top 5</h2>
+          <div style="display:flex;gap:6px">
+            <button id="sb-lb-practice" onclick="App.setSidebarLbMode('practice')" style="font-size:0.7rem;font-weight:700;padding:3px 8px;border-radius:10px;border:1.5px solid var(--primary);background:var(--primary);color:white;cursor:pointer">Practice</button>
+            <button id="sb-lb-exam" onclick="App.setSidebarLbMode('exam')" style="font-size:0.7rem;font-weight:700;padding:3px 8px;border-radius:10px;border:1.5px solid var(--border);background:white;color:var(--muted);cursor:pointer">Exam</button>
+          </div>
+        </div>
+        <div id="sidebar-lb" style="color:var(--muted);font-size:0.85rem">Loading…</div>
+      </div>
+      <div class="card fade-in">
+        <h2 style="font-size:1rem;margin-bottom:12px">⚡ Records</h2>
+        <div id="sidebar-records" style="color:var(--muted);font-size:0.85rem">Loading…</div>
+      </div>
+    </div>
+
+    <!-- FLASHCARD SECTION -->
+    <div id="section-flashcards" class="hidden">
+      <div class="card fade-in">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:4px">
+          <h2 style="margin:0">🃏 Daily Flashcards</h2>
+          <span class="fc-daily-badge" id="fc-daily-badge">📅 Today's Deck</span>
+        </div>
+        <p style="font-size:0.83rem;color:var(--muted);margin-bottom:16px">
+          10 cards per day · Tap to flip · Rate yourself · Resets at midnight
+        </p>
+
+        <!-- Filter bar -->
+        <div class="fc-filter-bar" id="fc-filter-bar">
+          <button class="fc-filter-btn active" data-fcsec="all"     onclick="App.fcSetSection('all')">📚 All</button>
+          <button class="fc-filter-btn"         data-fcsec="Vocabulary" onclick="App.fcSetSection('Vocabulary')">🔤 Vocab</button>
+          <button class="fc-filter-btn"         data-fcsec="Grammar"    onclick="App.fcSetSection('Grammar')">📐 Grammar</button>
+          <button class="fc-filter-btn"         data-fcsec="Kanji"      onclick="App.fcSetSection('Kanji')">漢 Kanji</button>
+        </div>
+
+        <!-- Progress -->
+        <div class="fc-progress-wrap"><div class="fc-progress-fill" id="fc-progress-fill" style="width:0%"></div></div>
+        <div class="fc-progress-label">
+          <span id="fc-progress-text">Card 0 of 10</span>
+          <span id="fc-progress-pct">0%</span>
+        </div>
+
+        <!-- Stats row -->
+        <div class="fc-stats">
+          <div class="fc-stat"><div class="fsv" id="fc-stat-total">10</div><div class="fsl">Today's Cards</div></div>
+          <div class="fc-stat known"><div class="fsv" id="fc-stat-known">0</div><div class="fsl">✓ Know It</div></div>
+          <div class="fc-stat again"><div class="fsv" id="fc-stat-again">0</div><div class="fsl">↩ Review Again</div></div>
+          <div class="fc-stat"><div class="fsv" id="fc-stat-streak">0</div><div class="fsl">🔥 Day Streak</div></div>
+        </div>
+
+        <!-- Card stage (active deck) -->
+        <div id="fc-deck-active">
+          <div class="fc-stage">
+            <div class="fc-card-wrap" id="fc-card-wrap" onclick="App.fcFlipCard()">
+              <!-- FRONT -->
+              <div class="fc-face fc-front">
+                <span class="fc-section-badge" id="fc-front-section">Vocabulary</span>
+                <span class="fc-number" id="fc-front-num">1 / 10</span>
+                <div class="fc-word" id="fc-front-word">水</div>
+                <div class="fc-reading" id="fc-front-reading">みず</div>
+                <span class="fc-tap-hint">Tap to reveal →</span>
+              </div>
+              <!-- BACK -->
+              <div class="fc-face fc-back">
+                <span class="fc-type-badge" id="fc-back-type">Noun</span>
+                <div class="fc-word-back" id="fc-back-word">水</div>
+                <div class="fc-reading-back" id="fc-back-reading">みず (mizu)</div>
+                <div class="fc-meaning" id="fc-back-meaning">Water</div>
+                <div class="fc-example" id="fc-back-example">
+                  <em>水を飲みます。</em><br>I drink water.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rate buttons (disabled until flipped) -->
+          <div class="fc-actions hidden-btns" id="fc-actions">
+            <button class="fc-btn-again" onclick="App.fcRate('again')">↩ Review Again</button>
+            <button class="fc-btn-know"  onclick="App.fcRate('know')">✓ Know It!</button>
+          </div>
+          <div class="fc-kbd-hint">
+            <kbd>Space</kbd> flip &nbsp;·&nbsp; <kbd>←</kbd> review again &nbsp;·&nbsp; <kbd>→</kbd> know it
+          </div>
+        </div>
+
+        <!-- Completion view (hidden until all 10 done) -->
+        <div id="fc-deck-complete" class="hidden">
+          <div class="fc-complete">
+            <div class="fc-big-emoji" id="fc-complete-emoji">🎉</div>
+            <h3 id="fc-complete-title">Today's deck complete!</h3>
+            <p id="fc-complete-msg">Come back tomorrow for a new set of cards.</p>
+            <div class="fc-result-grid">
+              <div class="fc-result-box k">
+                <div class="rv" id="fc-done-known">0</div>
+                <div class="rl">✓ Knew It</div>
+              </div>
+              <div class="fc-result-box a">
+                <div class="rv" id="fc-done-again">0</div>
+                <div class="rl">↩ Review Again</div>
+              </div>
+            </div>
+            <div id="fc-review-again-section" class="hidden">
+              <p style="font-size:0.82rem;font-weight:700;color:var(--accent);margin-bottom:8px">Cards to review again:</p>
+              <div class="fc-review-list" id="fc-review-list"></div>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+              <button class="btn btn-primary" onclick="App.fcRestart()">🔄 Redo Today's Deck</button>
+              <button class="btn btn-outline" onclick="App.showSection('home')">🏠 Home</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD SECTION -->
+    <div id="section-leaderboard" class="hidden">
+      <div class="card fade-in">
+        <h2>🏆 Leaderboard</h2>
+        <div class="lb-controls">
+          <div class="lb-tabs">
+            <div class="lb-tab active" id="lb-tab-practice" onclick="App.setLbMode('practice')">📝 Practice</div>
+            <div class="lb-tab" id="lb-tab-exam" onclick="App.setLbMode('exam')">🎯 Exam</div>
+            <div class="lb-tab" id="lb-tab-time-attack" onclick="App.setLbMode('time-attack')" style="border-color:#c62828;color:#c62828">💣 Time Attack</div>
+          </div>
+          <div class="lb-period-tabs" id="lb-period-row">
+            <div class="lb-period-tab active" id="lb-period-all" onclick="App.setLbPeriod('all')">All Time</div>
+            <div class="lb-period-tab" id="lb-period-daily" onclick="App.setLbPeriod('daily')">Daily</div>
+            <div class="lb-period-tab" id="lb-period-weekly" onclick="App.setLbPeriod('weekly')">Weekly</div>
+            <div class="lb-period-tab" id="lb-period-monthly" onclick="App.setLbPeriod('monthly')">Monthly</div>
+          </div>
+        </div>
+        <div id="lb-content"></div>
+      </div>
+    </div>
+
+  </div><!-- /container -->
+</div><!-- /screen-main -->
+
+<!-- PROFILE MODAL -->
+<div id="profile-modal" class="modal-overlay hidden">
+  <div class="modal-box fade-in">
+    <h3>👤 Your Profile</h3>
+    <div class="avatar-upload-area">
+      <div class="avatar-preview" id="avatar-preview-modal" onclick="document.getElementById('avatar-file-input').click()" title="Click to change photo">👤</div>
+      <input type="file" id="avatar-file-input" accept="image/*">
+      <span style="font-size:0.8rem;color:var(--muted)">Click photo to upload / change</span>
+    </div>
+    <div class="streak-info" id="streak-info-modal">
+      <span class="streak-count" id="streak-count-modal">0</span>
+      <div>
+        <div style="font-weight:700;color:var(--text)">Day Streak 🔥</div>
+        <div style="color:var(--muted);font-size:0.8rem" id="streak-desc-modal">Keep studying daily!</div>
+      </div>
+    </div>
+    <div class="input-group">
+      <label>Username</label>
+      <input type="text" id="profile-username-display" disabled style="background:var(--bg);color:var(--muted)">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-primary" style="flex:1" onclick="App.saveProfile()">Save</button>
+      <button class="btn btn-outline" style="flex:1" onclick="App.closeProfile()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECORD BANNER -->
+<div id="record-banner">
+  <div class="record-banner-inner">
+    <div class="record-banner-icon" id="record-banner-icon">🏆</div>
+    <div class="record-banner-text">
+      <strong id="record-banner-title">Record Broken!</strong>
+      <span id="record-banner-body"></span>
+    </div>
+    <button class="record-banner-close" onclick="App.closeBanner()">✕</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- =====================================================
+     APP LOGIC
+===================================================== -->
+<script>
+const App = (() => {
+  // ── State ──────────────────────────────────────────────────
+  let username = '';
+  let activeLevel = 'N5';
+  let mode = 'practice';
+  let difficulty = 'all';
+  let sectionFilter = 'all';
+  let sessionQuestions = [];
+  let currentIndex = 0;
+  let score = 0;
+  let answered = false;
+  let pendingChoice = null;
+  let timerInterval = null;
+  let timeLeft = 0;
+  let sessionStartTime = null;
+  let timeTaken = 0;
+  let sessionAnswers = [];
+  let lbMode = 'practice';
+  let lbPeriod = 'all';
+  const TA_TOTAL_TIME = 90;
+  const TA_PENALTY = 8;
+  const TA_Q_COUNT = 20;
+  let taTimeLeft = TA_TOTAL_TIME;
+  let taPoints = 0;
+  let taStreak = 0;
+  let taTimerInterval = null;
+  const _cachedUsers = {};
+  let pendingVerifyName = null;
+  let pendingAvatarDataUrl = null;
+  let _sbLbMode = 'practice';
+  let _bannerTimeout = null;
+
+  const LEVELS = ['N5','N4','N3','N2','N1'];
+  const LEVEL_EMOJI = { N5:'🟢', N4:'🔵', N3:'🟠', N2:'🟣', N1:'🔴' };
+
+  // ── Question banks ─────────────────────────────────────────
+  function getBank(level) {
+    if (level === 'N5') return window.QUESTIONS_N5 || [];
+    if (level === 'N4') return window.QUESTIONS_N4 || [];
+    if (level === 'N3') return window.QUESTIONS_N3 || [];
+    return []; // N2/N1 — coming soon placeholder
+  }
+
+  // ── Firestore helpers ─────────────────────────────────────
+  const COL = 'jp_'; // prefix so it doesn't clash with ISTQB collections
+  async function loadUsers() {
+    try { const s = await _db.collection(COL+'users').get({source:'server'}); const r={}; s.forEach(d=>{r[d.id]=d.data();}); return r; } catch(e){return{};}
+  }
+  async function getUser(name) {
+    try { const d = await _db.collection(COL+'users').doc(name).get(); return d.exists ? d.data() : null; } catch(e){return null;}
+  }
+  async function upsertUser(name, patch) {
+    try { await _db.collection(COL+'users').doc(name).set(patch,{merge:true}); return Object.assign({},await getUser(name)); } catch(e){return patch;}
+  }
+  async function loadLB() {
+    try { const s = await _db.collection(COL+'leaderboard').get({source:'server'}); const d=s.docs.map(x=>x.data()); d.sort((a,b)=>(b.ts||0)-(a.ts||0)); return d.slice(0,2000); } catch(e){return[];}
+  }
+  async function saveLBEntry(e) {
+    try { await _db.collection(COL+'leaderboard').doc('lb_'+e.ts+'_'+Math.random().toString(36).slice(2,7)).set(e); } catch(e){}
+  }
+  async function saveSession(r) {
+    try { await _db.collection(COL+'sessions').doc(r.sessionId).set(r); } catch(e){}
+  }
+  async function loadRecord(id) {
+    try { const d=await _db.collection(COL+'records').doc(id).get(); return d.exists?d.data():null; } catch(e){return null;}
+  }
+  async function saveRecord(id,data) {
+    try { await _db.collection(COL+'records').doc(id).set(data); } catch(e){}
+  }
+
+  // ── Security helpers ──────────────────────────────────────
+  function hashEntry(s) { let h=0; for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;} return 'eid_'+Math.abs(h).toString(36); }
+  function normalise(s) { return s.trim().toLowerCase(); }
+  const SEC_QUESTIONS = {
+    pet:'What was the name of your first pet?', school:'What primary school did you attend?',
+    city:'What city were you born in?', mother:"What is your mother's maiden name?",
+    friend:'What is the name of your childhood best friend?', food:'What is your favourite food?',
+    hero:'Who is your childhood hero?'
+  };
+
+  // ── Streak ────────────────────────────────────────────────
+  function todayStr() { return new Date().toISOString().slice(0,10); }
+  async function updateStreak(name) {
+    const user=(await getUser(name))||{};
+    const today=todayStr();
+    if(user.lastActiveDate===today)return;
+    const yest=new Date(); yest.setDate(yest.getDate()-1);
+    const yStr=yest.toISOString().slice(0,10);
+    let streak=user.streak||0;
+    if(user.lastActiveDate===yStr)streak++;
+    else streak=1;
+    await upsertUser(name,{streak,lastActiveDate:today});
+  }
+  function getStreakCached(name) {
+    const u=_cachedUsers[name]; if(!u)return 0;
+    const today=todayStr(); const yest=new Date(); yest.setDate(yest.getDate()-1);
+    if(u.lastActiveDate===today||u.lastActiveDate===yest.toISOString().slice(0,10))return u.streak||0;
+    return 0;
+  }
+
+  // ── Score save ────────────────────────────────────────────
+  async function saveScore(entry) {
+    await saveLBEntry(entry);
+    const record=Object.assign({},entry,{
+      sessionId:'sid_'+entry.ts+'_'+Math.random().toString(36).slice(2,7),
+      answers:sessionAnswers.filter(a=>a!=null).map(a=>({qId:a.qId,question:a.question,chosen:a.chosen,correct:a.correct,isCorrect:a.isCorrect}))
+    });
+    await saveSession(record);
+  }
+
+  // ── Login ─────────────────────────────────────────────────
+  async function initLoginScreen() {
+    const users = await loadUsers();
+    Object.assign(_cachedUsers, users);
+    const secq = document.getElementById('secq-fields');
+    const nameEl = document.getElementById('username-input');
+    // Show secq fields only if brand-new user detected (live check on name input)
+    if(secq) secq.classList.remove('hidden');
+  }
+
+  async function handleLogin() {
+    if(pendingVerifyName) {
+      const raw=document.getElementById('verify-entryid-input').value.trim();
+      if(!raw){showToast('Please enter your PIN');return;}
+      if(!/^\d+$/.test(raw)){showToast('PIN must be numbers only');return;}
+      const user=await getUser(pendingVerifyName);
+      if(!user||hashEntry(raw)!==user.entryIdHash){document.getElementById('verify-entryid-input').classList.add('error');showToast('Incorrect Entry ID. Try again.');return;}
+      await loginAs(pendingVerifyName);
+    } else {
+      const nameVal=document.getElementById('username-input').value.trim();
+      const entryRaw=document.getElementById('entryid-input').value.trim();
+      const secqKey=document.getElementById('secq-select').value;
+      const secqAns=document.getElementById('secq-answer').value.trim();
+      if(!nameVal){document.getElementById('username-input').classList.add('error');showToast('Please enter your name');return;}
+      if(!entryRaw){document.getElementById('entryid-input').classList.add('error');showToast('Please set a PIN');return;}
+      if(!/^\d+$/.test(entryRaw)){showToast('PIN must be numbers only');return;}
+      if(entryRaw.length<4||entryRaw.length>6){showToast('PIN must be 4–6 digits');return;}
+      const existing=await getUser(nameVal);
+      if(existing) {
+        if(hashEntry(entryRaw)!==existing.entryIdHash){showToast('That name already exists and the PIN does not match.');return;}
+        showToast('Welcome back, '+nameVal+'!');
+        await loginAs(nameVal); return;
+      }
+      if(!secqKey){showToast('Please choose a security question');return;}
+      if(!secqAns){document.getElementById('secq-answer').classList.add('error');showToast('Please answer your security question');return;}
+      await upsertUser(nameVal,{entryIdHash:hashEntry(entryRaw),secqKey,secqHash:hashEntry(normalise(secqAns)),streak:0,lastActiveDate:null,avatar:null});
+      await loginAs(nameVal);
+    }
+  }
+
+  function selectReturningUser(name) {
+    document.querySelectorAll('.user-chip').forEach(c=>c.classList.toggle('selected',c.dataset.name===name));
+    pendingVerifyName=name;
+    document.getElementById('new-user-fields').classList.add('hidden');
+    document.getElementById('verify-fields').classList.remove('hidden');
+    document.getElementById('verify-username-display').textContent=name;
+    document.getElementById('verify-entryid-input').value='';
+    document.getElementById('verify-entryid-input').focus();
+  }
+
+  function cancelVerify() {
+    pendingVerifyName=null;
+    document.querySelectorAll('.user-chip').forEach(c=>c.classList.remove('selected'));
+    document.getElementById('verify-fields').classList.add('hidden');
+    document.getElementById('forgot-fields').classList.add('hidden');
+    document.getElementById('btn-start').classList.remove('hidden');
+    document.getElementById('new-user-fields').classList.remove('hidden');
+    document.getElementById('username-input').value='';
+    document.getElementById('entryid-input').value='';
+  }
+
+  async function showForgotFlow() {
+    const user=await getUser(pendingVerifyName);
+    if(!user||!user.secqKey){showToast('No security question set. Contact an admin.');return;}
+    document.getElementById('verify-fields').classList.add('hidden');
+    document.getElementById('btn-start').classList.add('hidden');
+    document.getElementById('forgot-fields').classList.remove('hidden');
+    document.getElementById('forgot-username-display').textContent=pendingVerifyName;
+    document.getElementById('forgot-question-label').textContent=SEC_QUESTIONS[user.secqKey]||'Security Question';
+    ['forgot-answer-input','forgot-new-entry','forgot-confirm-entry'].forEach(id=>document.getElementById(id).value='');
+  }
+
+  function cancelForgot() {
+    document.getElementById('forgot-fields').classList.add('hidden');
+    document.getElementById('btn-start').classList.remove('hidden');
+    document.getElementById('verify-fields').classList.remove('hidden');
+  }
+
+  async function submitForgot() {
+    const user=await getUser(pendingVerifyName);
+    const ans=document.getElementById('forgot-answer-input').value.trim();
+    const ne=document.getElementById('forgot-new-entry').value.trim();
+    const cf=document.getElementById('forgot-confirm-entry').value.trim();
+    if(!ans){showToast('Please enter your answer');return;}
+    if(hashEntry(normalise(ans))!==user.secqHash){document.getElementById('forgot-answer-input').classList.add('error');showToast('Incorrect answer. Try again.');return;}
+    if(!ne||!/^\d+$/.test(ne)||ne.length<4||ne.length>6){showToast('PIN must be 4–6 digits');return;}
+    if(ne!==cf){showToast('PINs do not match');return;}
+    await upsertUser(pendingVerifyName,{entryIdHash:hashEntry(ne)});
+    showToast('✅ Entry ID reset! You can now log in.');
+    cancelVerify();
+  }
+
+  async function loginAs(name, isRestore) {
+    username=name;
+    sessionStorage.setItem('jp_session_user',name);
+    const userData=await getUser(name);
+    if(userData)_cachedUsers[name]=userData;
+    if(!isRestore)await updateStreak(name);
+    const updated=await getUser(name);
+    if(updated)_cachedUsers[name]=updated;
+    updateHeaderAvatar();
+    document.getElementById('header-username').textContent='👤 '+username;
+    document.getElementById('screen-username').classList.add('hidden');
+    document.getElementById('screen-main').classList.remove('hidden');
+    setLevel(activeLevel);
+    showSection('home');
+    if(!isRestore){
+      const s=getStreakCached(name);
+      if(s>=3)showToast('🔥 '+s+'-day streak! Keep it up, '+name+'!');
+      else if(s===1)showToast('ようこそ '+name+'! Day 1 streak started 🎌');
+    }
+  }
+
+  function signOut() {
+    if(confirm('Sign out of your session?')){
+      sessionStorage.removeItem('jp_session_user');
+      username='';
+      document.getElementById('screen-main').classList.add('hidden');
+      document.getElementById('screen-username').classList.remove('hidden');
+      cancelVerify();
+      document.getElementById('username-input').value='';
+      document.getElementById('entryid-input').value='';
+      stopTimer();
+      initLoginScreen();
+    }
+  }
+
+  function updateHeaderAvatar() {
+    const user=_cachedUsers[username];
+    const wrap=document.getElementById('header-avatar-wrap');
+    if(user&&user.avatar){wrap.innerHTML='<img src="'+user.avatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';}
+    else{wrap.textContent='👤';}
+  }
+
+  // ── Profile ───────────────────────────────────────────────
+  async function openProfile() {
+    const user=(await getUser(username))||{};
+    if(user)_cachedUsers[username]=user;
+    pendingAvatarDataUrl=null;
+    const preview=document.getElementById('avatar-preview-modal');
+    preview.innerHTML=user.avatar?'<img src="'+user.avatar+'">':'👤';
+    document.getElementById('profile-username-display').value=username;
+    const s=getStreakCached(username);
+    document.getElementById('streak-count-modal').textContent=s;
+    document.getElementById('streak-desc-modal').textContent=
+      s>=3?'🔥 '+s+'-day streak! すごい！':s===1?'Day 1! Come back tomorrow.':'Study every day to build a streak!';
+    document.getElementById('profile-modal').classList.remove('hidden');
+  }
+
+  function closeProfile(){document.getElementById('profile-modal').classList.add('hidden');pendingAvatarDataUrl=null;}
+
+  async function saveProfile() {
+    if(pendingAvatarDataUrl){
+      await upsertUser(username,{avatar:pendingAvatarDataUrl});
+      const updated=await getUser(username);
+      if(updated)_cachedUsers[username]=updated;
+      updateHeaderAvatar();
+      showToast('Profile picture updated!');
+    }
+    closeProfile();
+  }
+
+  document.getElementById('avatar-file-input').addEventListener('change',function(e){
+    const file=e.target.files[0]; if(!file)return;
+    if(file.size>2*1024*1024){showToast('Image too large (max 2 MB)');return;}
+    const reader=new FileReader();
+    reader.onload=ev=>{pendingAvatarDataUrl=ev.target.result;document.getElementById('avatar-preview-modal').innerHTML='<img src="'+pendingAvatarDataUrl+'">';};
+    reader.readAsDataURL(file); this.value='';
+  });
+
+  // ── Level switching ───────────────────────────────────────
+  function setLevel(level) {
+    activeLevel=level;
+    // Login screen buttons
+    document.querySelectorAll('.level-bank-btn').forEach(b=>b.classList.toggle('active',b.dataset.level===level));
+    // In-app nav buttons
+    LEVELS.forEach(l=>{
+      const el=document.getElementById('in-app-'+l.toLowerCase());
+      if(!el)return;
+      if(l===level){el.style.background='var(--primary)';el.style.color='white';el.style.borderColor='var(--primary)';}
+      else{el.style.background='white';el.style.color='var(--muted)';el.style.borderColor='var(--border)';}
+    });
+    // Mobile header buttons
+    LEVELS.forEach(l=>{
+      const el=document.getElementById('mob-lvl-'+l.toLowerCase());
+      if(el)el.classList.toggle('active',l===level);
+    });
+    const bank=getBank(level);
+    const count=bank.length;
+    document.getElementById('app-header-title').textContent='🎌 Japanese Companion — JLPT '+level;
+    const examEl=document.getElementById('exam-level-display');
+    if(examEl)examEl.textContent=level;
+    // Update subtitle on login
+    const sub=document.getElementById('login-subtitle');
+    if(sub)sub.textContent='JLPT '+level+' Practice — '+(count||'Coming soon'+(level==='N2'||level==='N1'?' (Q bank in progress)':''))+' Questions';
+  }
+
+  // ── Sections ──────────────────────────────────────────────
+  function showSection(sec) {
+    ['home','quiz','results','leaderboard','flashcards'].forEach(s=>{document.getElementById('section-'+s).classList.add('hidden');});
+    document.getElementById('section-'+sec).classList.remove('hidden');
+    document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+    if(sec==='home'){
+      const h=document.querySelector('#main-nav [onclick*="\'home\'"]');
+      if(h)h.classList.add('active');
+      renderRecords(); renderPreparedness(); renderSidebar();
+    }
+    if(sec==='leaderboard'){
+      const l=document.querySelector('#main-nav [onclick*="\'leaderboard\'"]');
+      if(l)l.classList.add('active');
+      renderLeaderboard();
+    }
+    if(sec==='flashcards'){
+      const f=document.querySelector('#main-nav [onclick*="\'flashcards\'"]');
+      if(f)f.classList.add('active');
+      fcInitDeck();
+    }
+    const mobNav=document.getElementById('mobile-bottom-nav');
+    const inQuiz=(sec==='quiz'||sec==='results');
+    if(mobNav){mobNav.style.display=inQuiz?'none':'';document.body.style.paddingBottom=inQuiz?'0':'';}
+    document.getElementById('mob-nav-home')?.classList.toggle('active',sec==='home');
+    document.getElementById('mob-nav-flashcards')?.classList.toggle('active',sec==='flashcards');
+    document.getElementById('mob-nav-leaderboard')?.classList.toggle('active',sec==='leaderboard');
+    if(sec==='quiz'||sec==='home')stopTimer();
+  }
+
+  // ── Mode / Difficulty / Section ───────────────────────────
+  function selectMode(m) {
+    mode=m;
+    document.querySelectorAll('.mode-card').forEach(c=>c.classList.toggle('selected',c.dataset.mode===m));
+    document.getElementById('practice-options').classList.toggle('hidden',m!=='practice');
+    document.getElementById('exam-options').classList.toggle('hidden',m!=='exam');
+    document.getElementById('ta-options').classList.toggle('hidden',m!=='time-attack');
+  }
+
+  function setDiff(d) {
+    difficulty=d;
+    document.querySelectorAll('.diff-btn').forEach(b=>b.classList.toggle('active',b.dataset.diff===d));
+  }
+
+  function setSection(s) {
+    sectionFilter=s;
+    document.querySelectorAll('.section-card').forEach(c=>c.classList.toggle('selected',c.dataset.section===s));
+  }
+
+  // ── Session start ─────────────────────────────────────────
+  function shuffle(arr) { for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr; }
+
+  function startSession() {
+    const bank=getBank(activeLevel);
+    if(!bank.length){showToast('Question bank for '+activeLevel+' is coming soon! 🎌');return;}
+    let pool=[...bank];
+    if(mode==='practice'||mode==='time-attack'){
+      if(sectionFilter!=='all')pool=pool.filter(q=>q.section===sectionFilter);
+      if(difficulty!=='all')pool=pool.filter(q=>q.difficulty===difficulty);
+    }
+    if(!pool.length){showToast('No questions match your filters. Try different options.');return;}
+    const count=mode==='exam'?40:(mode==='time-attack'?TA_Q_COUNT:20);
+    sessionQuestions=shuffle(pool).slice(0,Math.min(count,pool.length));
+    currentIndex=0; score=0; answered=false; pendingChoice=null;
+    sessionAnswers=new Array(sessionQuestions.length).fill(null);
+    sessionStartTime=Date.now();
+    showSection('quiz');
+    if(mode==='exam'){startTimer(60*60);}
+    else if(mode==='time-attack'){startTimeAttack();}
+    else{document.getElementById('timer-wrap').classList.add('hidden');}
+    document.getElementById('ta-header').classList.toggle('hidden',mode!=='time-attack');
+    renderQuestion();
+  }
+
+  // ── Render question ───────────────────────────────────────
+  function renderQuestion() {
+    const q=sessionQuestions[currentIndex];
+    const total=sessionQuestions.length;
+    document.getElementById('q-counter').textContent='Q '+(currentIndex+1)+' / '+total;
+    document.getElementById('q-level').textContent=q.level||activeLevel;
+    document.getElementById('q-section').textContent=q.section||'';
+    const diffEl=document.getElementById('q-diff');
+    diffEl.textContent=q.difficulty; diffEl.className='q-diff '+(q.difficulty||'easy');
+    document.getElementById('progress-bar').style.width=((currentIndex/total)*100)+'%';
+    document.getElementById('question-text').innerHTML=escapeHtml(q.question).replace(/「(.+?)」/g,'<span class="question-japanese">「$1」</span>');
+    const optList=document.getElementById('options-list');
+    optList.innerHTML='';
+    q.options.forEach((opt,i)=>{
+      const btn=document.createElement('button');
+      btn.className='option-btn';
+      btn.textContent=opt;
+      const saved=sessionAnswers[currentIndex];
+      if(mode==='practice'){
+        if(saved!==null){
+          btn.disabled=true;
+          if(i===q.answer)btn.classList.add('correct');
+          else if(i===saved.chosen)btn.classList.add('wrong');
+        } else if(pendingChoice===i){
+          btn.classList.add('selected-pending');
+        } else {
+          btn.addEventListener('click',()=>selectPending(i));
+        }
+      } else if(mode==='exam'){
+        if(saved!==null){btn.classList.add(i===saved.chosen?'selected-pending':'');btn.disabled=saved!==null;}
+        else{btn.addEventListener('click',()=>selectExamAnswer(i));}
+        if(saved!==null&&i===saved.chosen)btn.classList.add('selected-pending');
+      } else if(mode==='time-attack'){
+        if(saved!==null){
+          btn.disabled=true;
+          btn.classList.add(i===q.answer?'ta-correct':i===saved.chosen?'ta-wrong':'');
+        } else {
+          btn.addEventListener('click',()=>selectTaAnswer(i,q,btn));
+        }
+      }
+      optList.appendChild(btn);
+    });
+    // Explanation
+    const expBox=document.getElementById('explanation-box');
+    const saved=sessionAnswers[currentIndex];
+    if(mode==='practice'&&saved!==null){
+      expBox.classList.remove('hidden');
+      expBox.innerHTML='<strong>Explanation:</strong> '+escapeHtml(q.explanation||'');
+    } else {
+      expBox.classList.add('hidden');
+    }
+    // Nav buttons
+    const btnBack=document.getElementById('btn-back');
+    const btnNext=document.getElementById('btn-next');
+    const btnFinish=document.getElementById('btn-finish');
+    const isLast=(currentIndex===total-1);
+    btnBack.classList.toggle('hidden',currentIndex===0||(mode==='time-attack'));
+    if(mode==='time-attack'){
+      btnNext.classList.add('hidden'); btnFinish.classList.add('hidden');
+    } else {
+      const canAdvance=(mode==='exam')||(mode==='practice'&&sessionAnswers[currentIndex]!==null);
+      btnNext.classList.toggle('hidden',isLast||!canAdvance);
+      btnFinish.classList.toggle('hidden',!isLast||!canAdvance);
+    }
+    // In Practice: show Next/Finish only after answering
+    if(mode==='practice'&&sessionAnswers[currentIndex]===null){
+      btnNext.classList.add('hidden'); btnFinish.classList.add('hidden');
+    }
+  }
+
+  function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+  // ── Answer selection ──────────────────────────────────────
+  function selectPending(i) {
+    if(sessionAnswers[currentIndex]!==null)return;
+    pendingChoice=i;
+    commitPracticeAnswer(i);
+  }
+
+  function commitPracticeAnswer(i) {
+    const q=sessionQuestions[currentIndex];
+    const isCorrect=(i===q.answer);
+    if(isCorrect)score++;
+    sessionAnswers[currentIndex]={qId:q.id,question:q.question,chosen:i,correct:q.answer,isCorrect};
+    pendingChoice=null;
+    renderQuestion();
+  }
+
+  function selectExamAnswer(i) {
+    const q=sessionQuestions[currentIndex];
+    sessionAnswers[currentIndex]={qId:q.id,question:q.question,chosen:i,correct:q.answer,isCorrect:(i===q.answer)};
+    renderQuestion();
+  }
+
+  function selectTaAnswer(i, q, btn) {
+    if(sessionAnswers[currentIndex]!==null)return;
+    const isCorrect=(i===q.answer);
+    sessionAnswers[currentIndex]={qId:q.id,question:q.question,chosen:i,correct:q.answer,isCorrect};
+    if(isCorrect){score++;taStreak++;taPoints+=taStreak>=3?5:taStreak===2?4:3;}
+    else{taStreak=0;taTimeLeft=Math.max(0,taTimeLeft-TA_PENALTY);showTaPenalty();}
+    document.getElementById('ta-streak-count').textContent=taStreak;
+    document.getElementById('ta-points-val').textContent=taPoints;
+    document.querySelectorAll('.option-btn').forEach((b,idx)=>{
+      b.disabled=true;
+      if(idx===q.answer)b.classList.add('ta-correct');
+      else if(idx===i&&!isCorrect)b.classList.add('ta-wrong');
+    });
+    setTimeout(()=>{
+      if(currentIndex<sessionQuestions.length-1){currentIndex++;renderQuestion();}
+      else{endTimeAttack();}
+    },900);
+  }
+
+  function showTaPenalty() {
+    const el=document.getElementById('ta-penalty-msg');
+    el.classList.remove('hidden'); setTimeout(()=>el.classList.add('hidden'),1200);
+  }
+
+  // ── Navigation ────────────────────────────────────────────
+  function nextQuestion() {
+    if(currentIndex<sessionQuestions.length-1){currentIndex++;pendingChoice=null;renderQuestion();}
+  }
+
+  function prevQuestion() {
+    if(currentIndex>0){currentIndex--;pendingChoice=null;renderQuestion();}
+  }
+
+  function confirmQuit() {
+    if(confirm('Quit this session? Progress will not be saved.')){stopTimer();showSection('home');}
+  }
+
+  // ── Timer ─────────────────────────────────────────────────
+  function startTimer(seconds) {
+    timeLeft=seconds; stopTimer();
+    document.getElementById('timer-wrap').classList.remove('hidden');
+    updateTimerDisplay();
+    timerInterval=setInterval(()=>{
+      timeLeft--;
+      updateTimerDisplay();
+      if(timeLeft<=0){clearInterval(timerInterval);finishSession();}
+    },1000);
+  }
+
+  function updateTimerDisplay() {
+    const m=Math.floor(timeLeft/60),s=timeLeft%60;
+    const el=document.getElementById('timer-display');
+    el.textContent='⏱ '+m+':'+String(s).padStart(2,'0');
+    el.className='timer'+(timeLeft<=120?' warning':'')+(timeLeft<=60?' danger':'');
+  }
+
+  function stopTimer(){if(timerInterval){clearInterval(timerInterval);timerInterval=null;}}
+
+  // ── Time Attack timer ─────────────────────────────────────
+  function startTimeAttack() {
+    taTimeLeft=TA_TOTAL_TIME; taPoints=0; taStreak=0;
+    document.getElementById('ta-clock').textContent='1:30';
+    document.getElementById('ta-bar-fill').style.width='100%';
+    document.getElementById('ta-streak-count').textContent='0';
+    document.getElementById('ta-points-val').textContent='0';
+    const bomb=document.getElementById('ta-bomb-icon');
+    taTimerInterval=setInterval(()=>{
+      taTimeLeft--;
+      const m=Math.floor(taTimeLeft/60),s=taTimeLeft%60;
+      document.getElementById('ta-clock').textContent=m+':'+String(s).padStart(2,'0');
+      document.getElementById('ta-bar-fill').style.width=(taTimeLeft/TA_TOTAL_TIME*100)+'%';
+      if(taTimeLeft<=20)bomb.classList.add('ticking');
+      if(taTimeLeft<=0){clearInterval(taTimerInterval);taTimerInterval=null;triggerBombExplosion();}
+    },1000);
+  }
+
+  function triggerBombExplosion() {
+    const overlay=document.getElementById('ta-bomb-overlay');
+    const emoji=document.getElementById('ta-bomb-emoji');
+    const timesUp=document.getElementById('ta-times-up');
+    overlay.classList.remove('hidden');
+    emoji.classList.add('pre-explode');
+    setTimeout(()=>{
+      overlay.classList.add('exploding');
+      emoji.classList.remove('pre-explode');
+      emoji.classList.add('exploded');
+      timesUp.classList.add('show');
+      setTimeout(()=>endTimeAttack(),1600);
+    },600);
+  }
+
+  function endTimeAttack() {
+    document.getElementById('ta-bomb-overlay').classList.remove('hidden');
+    document.getElementById('ta-bomb-overlay').classList.remove('exploding');
+    document.getElementById('ta-bomb-emoji').className='ta-bomb-tick';
+    document.getElementById('ta-times-up').classList.remove('show');
+    document.getElementById('ta-bomb-overlay').classList.add('hidden');
+    document.getElementById('ta-bomb-icon').classList.remove('ticking');
+    finishSession();
+  }
+
+  // ── Finish session ────────────────────────────────────────
+  async function finishSession() {
+    stopTimer();
+    if(taTimerInterval){clearInterval(taTimerInterval);taTimerInterval=null;}
+    // Count correct from sessionAnswers
+    let correct=0;
+    sessionAnswers.forEach(a=>{if(a&&a.isCorrect)correct++;});
+    score=correct;
+    const total=sessionQuestions.length;
+    const pct=Math.round((correct/total)*100);
+    const passThreshold=mode==='exam'?70:60;
+    const pass=(pct>=passThreshold);
+    timeTaken=Math.round((Date.now()-sessionStartTime)/1000);
+
+    // Update results UI
+    const circle=document.getElementById('score-circle');
+    circle.className='score-circle '+(pct>=70?'score-pass':pct>=55?'score-ok':'score-fail');
+    document.getElementById('score-pct').textContent=pct+'%';
+    document.getElementById('score-label').textContent=mode==='time-attack'?'Points: '+taPoints:'Score';
+    document.getElementById('stat-correct').textContent=correct;
+    document.getElementById('stat-wrong').textContent=total-correct;
+    document.getElementById('stat-total').textContent=total;
+    document.getElementById('results-title').textContent=mode==='time-attack'?'⏰ Time Attack Complete!':mode==='exam'?'🎯 Exam Complete!':'📝 Practice Complete!';
+    const pfMsg=document.getElementById('pass-fail-msg');
+    if(mode==='exam'){pfMsg.innerHTML=pass?'<span style="color:var(--success)">✅ PASSED! 合格おめでとう！</span>':'<span style="color:var(--danger)">❌ Not passed. Keep studying! 頑張れ！</span>';}
+    else if(mode==='time-attack'){pfMsg.innerHTML='<span style="color:var(--primary)">🎌 Score: '+taPoints+' pts · Streak: '+taStreak+'</span>';}
+    else{pfMsg.innerHTML=pct>=80?'<span style="color:var(--success)">🌟 Excellent!</span>':pct>=60?'<span style="color:var(--warning)">👍 Good effort!</span>':'<span style="color:var(--danger)">📖 Keep studying!</span>';}
+    const ttEl=document.getElementById('time-taken-display');
+    if(mode!=='time-attack'){ttEl.classList.remove('hidden');const mm=Math.floor(timeTaken/60),ss=timeTaken%60;ttEl.textContent='Time: '+mm+'m '+String(ss).padStart(2,'0')+'s';}
+    else{ttEl.classList.add('hidden');}
+
+    // Review list
+    const reviewList=document.getElementById('review-list');
+    reviewList.innerHTML=sessionQuestions.map((q,i)=>{
+      const a=sessionAnswers[i];
+      if(!a)return '';
+      const cls=a.isCorrect?'correct':'wrong';
+      return '<div class="review-item '+cls+'">'+
+        '<div class="q-text">'+(i+1)+'. '+escapeHtml(q.question)+'</div>'+
+        '<div class="answers">'+
+          '<span class="corr">✓ '+escapeHtml(q.options[q.answer])+'</span>'+
+          (!a.isCorrect?'<br><span class="wrong-ans">✗ Your answer: '+escapeHtml(q.options[a.chosen])+'</span>':'')+
+          '<br><small style="color:var(--muted)">'+escapeHtml(q.explanation||'')+'</small>'+
+        '</div></div>';
+    }).join('');
+
+    showSection('results');
+
+    // Save to Firestore
+    const entry={
+      username, level:activeLevel, mode,
+      score:correct, total, pct, pass,
+      difficulty:mode==='practice'?difficulty:'all',
+      section:mode==='practice'?sectionFilter:'all',
+      timeTaken, taPoints:(mode==='time-attack'?taPoints:null),
+      ts:Date.now(), date:new Date().toLocaleDateString('en-GB'),
+      bank:'jp_'+activeLevel.toLowerCase()
+    };
+    await saveScore(entry);
+    await checkAndUpdateRecords(entry);
+  }
+
+  // ── Records ───────────────────────────────────────────────
+  async function checkAndUpdateRecords(entry) {
+    if(entry.mode!=='practice')return;
+    const key='jp_'+entry.level.toLowerCase();
+    const [fastest,highest]=await Promise.all([loadRecord(key+'_fastest'),loadRecord(key+'_highest')]);
+    const notifs=[];
+    if(!highest||entry.pct>highest.pct||(entry.pct===highest.pct&&entry.score>highest.score)){
+      const prev=highest?{...highest}:null;
+      await saveRecord(key+'_highest',{username:entry.username,pct:entry.pct,score:entry.score,total:entry.total,timeTaken:entry.timeTaken,date:entry.date,ts:entry.ts});
+      if(entry.username===username)notifs.push({icon:'🏆',title:'New High Score Record!',body:entry.level+' best: '+entry.pct+'% ('+entry.score+'/'+entry.total+')'+(prev?' — beating '+prev.username+'\'s '+prev.pct+'%!':'!')});
+    }
+    if(entry.pass&&entry.timeTaken!=null){
+      if(!fastest||entry.timeTaken<fastest.timeTaken){
+        const prev=fastest?{...fastest}:null;
+        await saveRecord(key+'_fastest',{username:entry.username,pct:entry.pct,score:entry.score,total:entry.total,timeTaken:entry.timeTaken,date:entry.date,ts:entry.ts});
+        if(entry.username===username){const mm=Math.floor(entry.timeTaken/60),ss=entry.timeTaken%60;notifs.push({icon:'⚡',title:'New Speed Record!',body:'Fastest '+entry.level+' pass: '+mm+'m '+String(ss).padStart(2,'0')+'s at '+entry.pct+'%'+(prev?' — beating '+Math.floor(prev.timeTaken/60)+'m '+String(prev.timeTaken%60).padStart(2,'0')+'s!':'!')});}
+      }
+    }
+    notifs.forEach((n,i)=>setTimeout(()=>showRecordBanner(n.icon,n.title,n.body),i*4500));
+  }
+
+  async function renderRecords() {
+    const body=document.getElementById('records-body');
+    body.innerHTML='<div style="color:var(--muted);font-size:0.88rem">Loading…</div>';
+    const all=await loadLB();
+    const mine=all.filter(e=>e.username===username&&e.mode==='practice'&&e.bank==='jp_'+activeLevel.toLowerCase());
+    function fmtT(s){const m=Math.floor(s/60);return m+'m'+String(s%60).padStart(2,'0')+'s';}
+    const highest=mine.length?mine.reduce((b,e)=>(!b||e.pct>b.pct||(e.pct===b.pct&&e.score>b.score))?e:b,null):null;
+    const fastest=mine.filter(e=>e.pass&&e.timeTaken!=null).length?mine.filter(e=>e.pass&&e.timeTaken!=null).reduce((b,e)=>(!b||e.timeTaken<b.timeTaken)?e:b,null):null;
+    body.innerHTML='<div class="rec-grid">'+
+      '<div class="rec-box gold"><span class="rec-crown">🏆</span><div class="rec-title">Best Score ('+activeLevel+')</div><div class="rec-val">'+(highest?highest.pct+'%':'—')+'</div><div class="rec-sub">'+(highest?highest.score+'/'+highest.total+' · '+highest.date:'No sessions yet')+'</div></div>'+
+      '<div class="rec-box blue"><span class="rec-crown">⚡</span><div class="rec-title">Fastest Pass ('+activeLevel+')</div><div class="rec-val">'+(fastest?fmtT(fastest.timeTaken):'—')+'</div><div class="rec-sub">'+(fastest?fastest.pct+'% · '+fastest.date:'No passing sessions yet')+'</div></div>'+
+    '</div><div style="font-size:0.72rem;color:var(--muted);margin-top:10px">Practice mode only · Current level: '+activeLevel+'</div>';
+  }
+
+  async function renderPreparedness() {
+    const body=document.getElementById('prep-body');
+    body.innerHTML='<div style="color:var(--muted);font-size:0.88rem">Loading…</div>';
+    const all=await loadLB();
+    const mine=all.filter(e=>e.username===username&&e.bank==='jp_'+activeLevel.toLowerCase());
+    const sessions=mine.length;
+    const avgPct=sessions?Math.round(mine.reduce((s,e)=>s+e.pct,0)/sessions):0;
+    const cls=avgPct>=80?'prep-fill-ready':avgPct>=65?'prep-fill-good':avgPct>=45?'prep-fill-fair':'prep-fill-low';
+    const label=avgPct>=80?'🎌 Exam Ready!':avgPct>=65?'📈 Good Progress':avgPct>=45?'📚 Fair':' 🌱 Just Starting';
+    const badge=document.getElementById('prep-badge');
+    badge.textContent=label;
+    badge.style.background=avgPct>=80?'#e8f5e9':avgPct>=65?'#fff9c4':avgPct>=45?'#fff3e0':'#fce4ec';
+    badge.style.color=avgPct>=80?'var(--success)':avgPct>=65?'#f9a825':avgPct>=45?'var(--warning)':'var(--danger)';
+    body.innerHTML='<div class="prep-meter-wrap"><div class="prep-meter-track"><div class="prep-meter-fill '+cls+'" style="width:'+Math.min(avgPct,100)+'%"></div></div></div>'+
+      '<div class="prep-stats">'+
+        '<div class="prep-stat"><div class="pv">'+avgPct+'%</div><div class="pl">Avg Score ('+activeLevel+')</div></div>'+
+        '<div class="prep-stat"><div class="pv">'+sessions+'</div><div class="pl">Sessions</div></div>'+
+        '<div class="prep-stat"><div class="pv">'+mine.filter(e=>e.pass).length+'</div><div class="pl">Passing</div></div>'+
+      '</div>';
+  }
+
+  // ── Sidebar ───────────────────────────────────────────────
+  async function renderSidebar(){renderSidebarStats();renderSidebarLb();renderSidebarRecords();}
+
+  function setSidebarLbMode(m){
+    _sbLbMode=m;
+    ['practice','exam'].forEach(x=>{
+      const el=document.getElementById('sb-lb-'+x);if(!el)return;
+      if(x===m){el.style.background='var(--primary)';el.style.color='white';el.style.borderColor='var(--primary)';}
+      else{el.style.background='white';el.style.color='var(--muted)';el.style.borderColor='var(--border)';}
+    });
+    renderSidebarLb();
+  }
+
+  function sidebarStat(label,val){return '<div style="background:var(--bg);border-radius:8px;padding:10px;text-align:center"><div style="font-size:1.1rem;font-weight:800;color:var(--primary)">'+val+'</div><div style="font-size:0.7rem;color:var(--muted);margin-top:2px">'+label+'</div></div>';}
+
+  async function renderSidebarStats(){
+    const el=document.getElementById('sidebar-stats');if(!el)return;
+    const all=await loadLB();
+    const mine=all.filter(e=>e.username===username&&e.bank==='jp_'+activeLevel.toLowerCase());
+    const prac=mine.filter(e=>e.mode==='practice');
+    const exam=mine.filter(e=>e.mode==='exam');
+    el.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+
+      sidebarStat('Practice sessions',prac.length)+
+      sidebarStat('Exam sessions',exam.length)+
+      sidebarStat('Best practice',prac.length?Math.max(...prac.map(e=>e.pct))+'%':'—')+
+      sidebarStat('Best exam',exam.length?Math.max(...exam.map(e=>e.pct))+'%':'—')+
+    '</div>';
+  }
+
+  async function renderSidebarLb(){
+    const el=document.getElementById('sidebar-lb');if(!el)return;
+    const all=await loadLB();
+    let lb=all.filter(e=>e.mode===_sbLbMode&&e.bank==='jp_'+activeLevel.toLowerCase()).sort((a,b)=>b.pct-a.pct||b.score-a.score);
+    const seen={},ranked=[];
+    lb.forEach(e=>{if(!seen[e.username]){seen[e.username]=true;ranked.push(e);}});
+    const top5=ranked.slice(0,5);
+    if(!top5.length){el.innerHTML='<div style="color:var(--muted);font-style:italic;font-size:0.82rem">No scores yet.</div>';return;}
+    el.innerHTML=top5.map((e,i)=>{
+      const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
+      const isMe=e.username===username;
+      const c=e.pct>=70?'var(--success)':e.pct>=55?'var(--warning)':'var(--danger)';
+      return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)'+(i===top5.length-1?';border:none':'')+'">'+'<span style="font-size:0.9rem;min-width:22px">'+medal+'</span>'+'<span style="flex:1;font-size:0.82rem;font-weight:'+(isMe?'800':'600')+';color:var(--text)">'+escapeHtml(e.username)+(isMe?' <span style="font-size:0.65rem;color:var(--accent)">◀</span>':'')+'</span>'+'<span style="font-size:0.82rem;font-weight:700;color:'+c+'">'+e.pct+'%</span>'+'</div>';
+    }).join('');
+  }
+
+  async function renderSidebarRecords(){
+    const el=document.getElementById('sidebar-records');if(!el)return;
+    const all=await loadLB();
+    const mine=all.filter(e=>e.username===username&&e.mode==='practice'&&e.bank==='jp_'+activeLevel.toLowerCase());
+    const highest=mine.length?mine.reduce((b,e)=>(!b||e.pct>b.pct)?e:b,null):null;
+    const fastest=mine.filter(e=>e.pass&&e.timeTaken!=null).length?mine.filter(e=>e.pass&&e.timeTaken!=null).reduce((b,e)=>(!b||e.timeTaken<b.timeTaken)?e:b,null):null;
+    function fmtT(s){return Math.floor(s/60)+'m'+String(s%60).padStart(2,'0')+'s';}
+    el.innerHTML=[{icon:'🏆',label:'Your Best',val:highest?highest.pct+'%':'—'},{icon:'⚡',label:'Fastest Pass',val:fastest?fmtT(fastest.timeTaken):'—'}].map(r=>
+      '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">'+'<span style="font-size:1.2rem">'+r.icon+'</span>'+'<div style="flex:1"><div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase">'+r.label+'</div><div style="font-size:1rem;font-weight:800;color:var(--primary)">'+r.val+'</div></div>'+'</div>'
+    ).join('')+'<div style="font-size:0.7rem;color:var(--muted);margin-top:6px">'+activeLevel+' · Practice mode</div>';
+  }
+
+  // ── Leaderboard ───────────────────────────────────────────
+  let lbLevel='all';
+
+  function setLbMode(m){
+    lbMode=m;
+    document.querySelectorAll('.lb-tab').forEach(t=>t.classList.remove('active'));
+    const el=document.getElementById('lb-tab-'+m);if(el)el.classList.add('active');
+    document.getElementById('lb-period-row').classList.toggle('hidden',m==='time-attack');
+    renderLeaderboard();
+  }
+
+  function setLbPeriod(p){
+    lbPeriod=p;
+    document.querySelectorAll('.lb-period-tab').forEach(t=>t.classList.remove('active'));
+    const el=document.getElementById('lb-period-'+p);if(el)el.classList.add('active');
+    renderLeaderboard();
+  }
+
+  async function renderLeaderboard(){
+    const el=document.getElementById('lb-content');
+    el.innerHTML='<div style="color:var(--muted);padding:20px;text-align:center">Loading…</div>';
+    const all=await loadLB();
+    let data=all.filter(e=>e.mode===lbMode);
+    // Level filter
+    data=data.filter(e=>e.bank==='jp_'+activeLevel.toLowerCase());
+    // Period filter
+    if(lbPeriod!=='all'){
+      const now=Date.now();
+      const cutoff=lbPeriod==='daily'?now-86400000:lbPeriod==='weekly'?now-604800000:now-2592000000;
+      data=data.filter(e=>e.ts>=cutoff);
+    }
+    // Sort
+    if(lbMode==='time-attack')data.sort((a,b)=>b.taPoints-a.taPoints||(a.timeTaken||0)-(b.timeTaken||0));
+    else data.sort((a,b)=>b.pct-a.pct||b.score-a.score||(a.timeTaken||999999)-(b.timeTaken||999999));
+    // Deduplicate by username (best entry)
+    const seen={},ranked=[];
+    data.forEach(e=>{if(!seen[e.username]){seen[e.username]=true;ranked.push(e);}});
+    if(!ranked.length){el.innerHTML='<div class="no-data">No scores yet for JLPT '+activeLevel+'. Be the first! 🎌</div>';return;}
+    const tbl='<div style="overflow-x:auto"><table class="lb-table"><thead><tr>'+
+      '<th>Rank</th><th>Player</th><th>Level</th><th>Score</th>'+(lbMode==='time-attack'?'<th>TA Pts</th>':'')+'<th>Date</th>'+
+    '</tr></thead><tbody>'+
+    ranked.map((e,i)=>{
+      const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
+      const isMe=e.username===username;
+      const badgeCls=e.pct>=70?'pass':e.pct>=55?'ok':'fail';
+      return '<tr class="'+(isMe?'highlight':'')+'">'+
+        '<td>'+medal+'</td>'+
+        '<td><strong>'+escapeHtml(e.username)+'</strong>'+(isMe?' 👈':'')+
+        (e.section&&e.section!=='all'?' <span style="font-size:0.72rem;color:var(--muted)">['+e.section+']</span>':'')+
+        '</td>'+
+        '<td><span class="level-'+e.level.toLowerCase()+'">'+LEVEL_EMOJI[e.level]+' '+e.level+'</span></td>'+
+        '<td><span class="score-badge '+badgeCls+'">'+e.pct+'%</span> <small style="color:var(--muted)">('+e.score+'/'+e.total+')</small></td>'+
+        (lbMode==='time-attack'?'<td><strong>'+( e.taPoints||0)+'</strong> pts</td>':'')+
+        '<td style="color:var(--muted);font-size:0.82rem">'+e.date+'</td>'+
+      '</tr>';
+    }).join('')+'</tbody></table></div>';
+    el.innerHTML=tbl;
+  }
+
+  // ── Record banner ─────────────────────────────────────────
+  function showRecordBanner(icon,title,body){
+    document.getElementById('record-banner-icon').textContent=icon;
+    document.getElementById('record-banner-title').textContent=title;
+    document.getElementById('record-banner-body').textContent=body;
+    const banner=document.getElementById('record-banner');
+    banner.classList.add('show');
+    if(_bannerTimeout)clearTimeout(_bannerTimeout);
+    _bannerTimeout=setTimeout(()=>banner.classList.remove('show'),5000);
+  }
+  function closeBanner(){document.getElementById('record-banner').classList.remove('show');}
+
+  // ── Toast ─────────────────────────────────────────────────
+  let _toastTimer=null;
+  function showToast(msg){
+    const t=document.getElementById('toast');
+    t.textContent=msg;t.classList.add('show');
+    if(_toastTimer)clearTimeout(_toastTimer);
+    _toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
+  }
+
+  // ── Init ──────────────────────────────────────────────────
+  (function init(){
+    setLevel('N5');
+    initLoginScreen();
+    // Restore session
+    const saved=sessionStorage.getItem('jp_session_user');
+    if(saved){loginAs(saved,true);}
+  })();
+
+  // ── FLASHCARD ENGINE ──────────────────────────────────────
+  const FC_DECK_SIZE = 10;
+  let fcDeck = [];
+  let fcIndex = 0;
+  let fcKnown = 0;
+  let fcAgain = 0;
+  let fcFlipped = false;
+  let fcSection = 'all';
+  let fcAgainCards = [];
+  let fcDone = false;
+
+  function fcSeededRng(seed) {
+    let s = seed;
+    return () => { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff; };
+  }
+
+  function fcGetDayDeck(level, section) {
+    const all = (window.FLASHCARDS || []).filter(c =>
+      c.level === level && (section === 'all' || c.section === section)
+    );
+    if (!all.length) return [];
+    const today = todayStr();
+    const seedStr = today + username + level + section;
+    let seed = 0;
+    for (let i = 0; i < seedStr.length; i++) seed = ((seed << 5) - seed) + seedStr.charCodeAt(i);
+    const rng = fcSeededRng(seed);
+    const arr = [...all];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr.slice(0, Math.min(FC_DECK_SIZE, arr.length));
+  }
+
+  function fcTodayKeyStr() {
+    return 'fc_' + todayStr() + '_' + username + '_' + activeLevel + '_' + fcSection;
+  }
+
+  function fcLoadProgress() {
+    try { const raw = localStorage.getItem(fcTodayKeyStr()); return raw ? JSON.parse(raw) : null; }
+    catch(e) { return null; }
+  }
+
+  function fcSaveProgress() {
+    try {
+      localStorage.setItem(fcTodayKeyStr(), JSON.stringify({
+        index: fcIndex, known: fcKnown, again: fcAgain,
+        done: fcDone, againIds: fcAgainCards.map(c => c.id)
+      }));
+    } catch(e) {}
+  }
+
+  function fcInitDeck(forceRestart) {
+    fcDeck = fcGetDayDeck(activeLevel, fcSection);
+    if (!fcDeck.length) {
+      document.getElementById('fc-deck-active').classList.add('hidden');
+      document.getElementById('fc-deck-complete').classList.add('hidden');
+      document.getElementById('fc-daily-badge').textContent = '⚠ No cards for this filter';
+      return;
+    }
+    const saved = forceRestart ? null : fcLoadProgress();
+    if (saved && saved.done) {
+      fcIndex = saved.index; fcKnown = saved.known; fcAgain = saved.again; fcDone = true;
+      fcAgainCards = fcDeck.filter(c => (saved.againIds || []).includes(c.id));
+      fcUpdateStats();
+      fcShowComplete();
+      return;
+    }
+    if (saved && !forceRestart) {
+      fcIndex = saved.index; fcKnown = saved.known; fcAgain = saved.again; fcDone = false;
+      fcAgainCards = fcDeck.filter(c => (saved.againIds || []).includes(c.id));
+    } else {
+      fcIndex = 0; fcKnown = 0; fcAgain = 0; fcDone = false; fcAgainCards = [];
+    }
+    fcFlipped = false;
+    document.getElementById('fc-deck-complete').classList.add('hidden');
+    document.getElementById('fc-deck-active').classList.remove('hidden');
+    document.getElementById('fc-daily-badge').textContent = '📅 Today\'s Deck — ' + activeLevel;
+    fcUpdateStats();
+    fcRenderCard();
+  }
+
+  function fcRenderCard() {
+    const card = fcDeck[fcIndex];
+    if (!card) return;
+    const total = fcDeck.length;
+    const wrap = document.getElementById('fc-card-wrap');
+    wrap.classList.remove('flipped');
+    fcFlipped = false;
+    document.getElementById('fc-actions').classList.add('hidden-btns');
+    document.getElementById('fc-front-section').textContent = card.section || '';
+    document.getElementById('fc-front-num').textContent = (fcIndex + 1) + ' / ' + total;
+    document.getElementById('fc-front-word').textContent = card.front;
+    document.getElementById('fc-front-reading').textContent = card.reading + ' (' + card.romaji + ')';
+    document.getElementById('fc-back-type').textContent = card.type || '';
+    document.getElementById('fc-back-word').textContent = card.front;
+    document.getElementById('fc-back-reading').textContent = card.reading + ' (' + card.romaji + ')';
+    document.getElementById('fc-back-meaning').textContent = card.meaning;
+    document.getElementById('fc-back-example').innerHTML =
+      '<em>' + escapeHtml(card.example) + '</em><br>' +
+      '<span style="font-size:0.76rem;color:var(--muted)">' + escapeHtml(card.exampleReading) + '</span><br>' +
+      escapeHtml(card.exampleMeaning);
+    fcUpdateStats();
+  }
+
+  function fcFlipCard() {
+    if (fcDone) return;
+    const wrap = document.getElementById('fc-card-wrap');
+    wrap.classList.toggle('flipped');
+    fcFlipped = wrap.classList.contains('flipped');
+    document.getElementById('fc-actions').classList.toggle('hidden-btns', !fcFlipped);
+  }
+
+  function fcRate(rating) {
+    if (!fcFlipped || fcDone) return;
+    const card = fcDeck[fcIndex];
+    if (rating === 'know') { fcKnown++; }
+    else { fcAgain++; if (!fcAgainCards.find(c => c.id === card.id)) fcAgainCards.push(card); }
+    fcIndex++;
+    fcSaveProgress();
+    if (fcIndex >= fcDeck.length) { fcDone = true; fcSaveProgress(); fcUpdateStats(); fcShowComplete(); }
+    else { fcFlipped = false; fcRenderCard(); }
+  }
+
+  function fcUpdateStats() {
+    document.getElementById('fc-stat-total').textContent = fcDeck.length;
+    document.getElementById('fc-stat-known').textContent = fcKnown;
+    document.getElementById('fc-stat-again').textContent = fcAgain;
+    document.getElementById('fc-stat-streak').textContent = getStreakCached(username) || 0;
+    const pct = fcDeck.length ? Math.round((fcIndex / fcDeck.length) * 100) : 0;
+    document.getElementById('fc-progress-fill').style.width = pct + '%';
+    document.getElementById('fc-progress-text').textContent = 'Card ' + fcIndex + ' of ' + fcDeck.length;
+    document.getElementById('fc-progress-pct').textContent = pct + '%';
+  }
+
+  function fcShowComplete() {
+    document.getElementById('fc-deck-active').classList.add('hidden');
+    document.getElementById('fc-deck-complete').classList.remove('hidden');
+    document.getElementById('fc-done-known').textContent = fcKnown;
+    document.getElementById('fc-done-again').textContent = fcAgain;
+    const pct = fcDeck.length ? Math.round((fcKnown / fcDeck.length) * 100) : 0;
+    const emoji = pct === 100 ? '🌟' : pct >= 80 ? '🎉' : pct >= 60 ? '👍' : '📖';
+    document.getElementById('fc-complete-emoji').textContent = emoji;
+    document.getElementById('fc-complete-title').textContent =
+      pct === 100 ? 'Perfect! You knew them all!' : pct >= 80 ? 'Great work!' : pct >= 60 ? 'Good effort!' : 'Keep studying!';
+    document.getElementById('fc-complete-msg').textContent =
+      pct === 100 ? '素晴らしい！ Come back tomorrow for a new deck.' :
+      'Review the "↩ Review Again" cards. New deck resets at midnight.';
+    document.getElementById('fc-daily-badge').textContent = '✅ Done — ' + fcKnown + '/' + fcDeck.length + ' known';
+    const sec = document.getElementById('fc-review-again-section');
+    const list = document.getElementById('fc-review-list');
+    if (fcAgainCards.length) {
+      sec.classList.remove('hidden');
+      list.innerHTML = fcAgainCards.map(c =>
+        '<div class="fc-review-item">' +
+          '<span class="fri-word">' + escapeHtml(c.front) + '</span>' +
+          '<span class="fri-meaning"><strong>' + escapeHtml(c.reading) + '</strong> — ' + escapeHtml(c.meaning) + '</span>' +
+        '</div>'
+      ).join('');
+    } else { sec.classList.add('hidden'); }
+  }
+
+  function fcSetSection(sec) {
+    fcSection = sec;
+    document.querySelectorAll('.fc-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.fcsec === sec));
+    fcIndex = 0; fcKnown = 0; fcAgain = 0; fcDone = false; fcAgainCards = [];
+    fcInitDeck(true);
+  }
+
+  function fcRestart() {
+    fcIndex = 0; fcKnown = 0; fcAgain = 0; fcDone = false; fcAgainCards = [];
+    document.getElementById('fc-deck-complete').classList.add('hidden');
+    document.getElementById('fc-deck-active').classList.remove('hidden');
+    document.getElementById('fc-daily-badge').textContent = '📅 Today\'s Deck — ' + activeLevel;
+    fcSaveProgress(); fcRenderCard(); fcUpdateStats();
+  }
+
+  // Keyboard shortcuts (Space = flip, → = know, ← = again)
+  document.addEventListener('keydown', e => {
+    const sec = document.getElementById('section-flashcards');
+    if (!sec || sec.classList.contains('hidden')) return;
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); fcFlipCard(); }
+    if (e.key === 'ArrowRight' && fcFlipped) { e.preventDefault(); fcRate('know'); }
+    if (e.key === 'ArrowLeft'  && fcFlipped) { e.preventDefault(); fcRate('again'); }
+  });
+
+  // ── Public API ────────────────────────────────────────────
+  return {
+    setLevel, handleLogin, selectReturningUser, cancelVerify, showForgotFlow, cancelForgot, submitForgot,
+    signOut, openProfile, closeProfile, saveProfile,
+    showSection, selectMode, setDiff, setSection, startSession, nextQuestion, prevQuestion, confirmQuit, finishSession,
+    setLbMode, setLbPeriod, setSidebarLbMode,
+    closeBanner,
+    fcFlipCard, fcRate, fcSetSection, fcRestart
+  };
+})();
+</script>
+</body>
+</html>
