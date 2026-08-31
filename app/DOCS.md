@@ -26,6 +26,7 @@
 18. [Keyboard Shortcuts](#18-keyboard-shortcuts)
 19. [Local Storage Keys](#19-local-storage-keys)
 20. [Deploying to GitHub Pages](#20-deploying-to-github-pages)
+21. [Hiragana 3-Week Mastery Challenge](#21-hiragana-3-week-mastery-challenge)
 
 ---
 
@@ -804,4 +805,42 @@ Alternatively, move all files to the repo root and update script `src` paths acc
 
 ---
 
-*Last updated: 2025 · My Japanese Companion v1.0*
+## 21. Hiragana 3-Week Mastery Challenge
+
+The **Hiragana 3-Week Mastery Challenge** is a structured, interactive tutorial designed to take absolute beginners to full mastery of all Hiragana characters in exactly 3 weeks. It splits the Japanese syllabary logically into manageable milestones, and integrates structured daily reading checklists with on-the-fly interactive multiple-choice drills.
+
+### Syllabus Breakdown
+The curriculum is divided into three consecutive weekly segments:
+
+1. **Week 1: Foundations**
+   - Covers core vowels (`あ`, `い`, `う`, `え`, `お`) and the first three consonant rows (`か` K-row, `さ` S-row, `た` T-row) for a total of 20 letters.
+2. **Week 2: Progression**
+   - Covers the mid-consonant groups (`な` N-row, `は` H-row, `ま` M-row), the three semi-vowel digraph roots (`や`, `ゆ`, `よ`), the liquid `ら` R-row, the `わ` and `を` W-row, and the ending nasal consonant `ん` (26 letters).
+3. **Week 3: Mastery**
+   - Explains modified sounds using dakuten dots (G, Z, D, B) and handakuten circles (P), plus the standard Yōon digraph combination characters (e.g. `きゃ` kya, `しゅ` shu, `ちゃ` cha) for full literacy.
+
+### Feature Architecture
+
+#### 1. Interactive Table & Progress Checklists
+- Characters are displayed as cards in a beautiful responsive CSS grid.
+- Tap/click any character to open an educational detailed profile popup containing:
+  - Sound pronunciation guidelines.
+  - Number of writing strokes.
+  - Visual/text-based **Mnemonic Memory Aids** (e.g., `あ` looks like an 'Apple with a stem').
+  - Practical example words with kanji, reading, and English definitions (e.g., `あめ` - rain).
+- Progress is tracked on a per-user basis. When a character is opened, it is automatically marked as **Learned (✓)**.
+- Progress updates are persisted instantly inside the browser's `localStorage` (key: `tut_learned_<username>`).
+
+#### 2. Interactive Multiple-Choice Drill Engine
+- Generating dynamic drills on-the-fly with exactly 10 questions per run.
+- Users can choose between a **Week Drill** (limited to characters assigned to the selected week) and an **All-Hiragana Drill** (including all characters across all three weeks).
+- The drill engine automatically alternates between two question styles:
+  1. **Kana to Romaji Translation**: "Identify the Romaji for 「あ」?"
+  2. **Romaji to Kana Matching**: "Which character represents the sound 'ka'?"
+- Distractors are chosen randomly from the character pool of that week, ensuring a challenging and variable learning game.
+- Provides immediate visual feedback (green for correct, red/green highlighted comparison for incorrect) and shows the character's memory mnemonics and example words.
+- At the end of the drill, users see a custom score report out of 10 and a motivation badge tailored to their percentage performance.
+
+---
+
+*Last updated: 2025 · My Japanese Companion v1.0 · Hiragana Tutorial Update*

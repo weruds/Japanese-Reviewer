@@ -515,6 +515,53 @@
 
   /* Daily reset badge */
   .fc-daily-badge { display: inline-flex; align-items: center; gap: 6px; background: #fff8e1; border: 1px solid #ffd54f; border-radius: 20px; padding: 4px 12px; font-size: 0.78rem; font-weight: 700; color: #795548; margin-bottom: 16px; }
+
+  /* ===== TUTORIAL SECTION ===== */
+  .tutorial-week-tabs { display: flex; gap: 8px; margin-bottom: 18px; border-bottom: 2px solid var(--border); padding-bottom: 8px; flex-wrap: wrap; }
+  .tutorial-week-tab { padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.9rem; color: var(--muted); background: white; border: 1.5px solid var(--border); transition: all 0.2s; }
+  .tutorial-week-tab:hover { border-color: var(--primary); color: var(--primary); }
+  .tutorial-week-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+  
+  .syllabus-card { display: flex; flex-direction: column; gap: 12px; background: linear-gradient(135deg, #fffcf0 0%, #fffde6 100%); border: 1.5px solid #ffe57f; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+  .syllabus-title { font-size: 1.15rem; font-weight: 800; color: #795548; display: flex; align-items: center; gap: 8px; }
+  .syllabus-desc { font-size: 0.88rem; color: #5d4037; line-height: 1.5; }
+  .syllabus-actions { display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
+  
+  .kana-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-bottom: 20px; }
+  .kana-card { background: white; border: 2px solid var(--border); border-radius: 10px; padding: 16px 8px; text-align: center; cursor: pointer; transition: all 0.2s; user-select: none; position: relative; }
+  .kana-card:hover { transform: translateY(-2px); border-color: var(--primary); box-shadow: 0 4px 10px rgba(27,0,98,0.12); }
+  .kana-card .k-char { font-size: 2.2rem; font-weight: 800; color: var(--text); line-height: 1.1; margin-bottom: 4px; }
+  .kana-card .k-romaji { font-size: 0.76rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .kana-card.read { border-color: rgba(46, 125, 50, 0.4); background: #f1f8e9; }
+  .kana-card.read::after { content: '✓'; position: absolute; top: 4px; right: 6px; font-size: 0.65rem; font-weight: 900; color: var(--success); background: white; border: 1px solid var(--success); border-radius: 50%; width: 14px; height: 12px; display: flex; align-items: center; justify-content: center; }
+  
+  /* Modal detail */
+  .kana-detail-box { text-align: center; max-width: 460px !important; }
+  .kana-detail-char { font-size: 5.5rem; font-weight: 800; color: var(--primary); line-height: 1; margin: 10px 0; font-family: 'Hiragana', 'Yu Gothic', sans-serif; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
+  .kana-detail-row { display: flex; justify-content: space-around; margin: 15px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 10px 0; }
+  .kana-detail-item { display: flex; flex-direction: column; gap: 2px; }
+  .kana-detail-label { font-size: 0.72rem; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .kana-detail-val { font-size: 1.1rem; font-weight: 800; color: var(--text); }
+  .kana-mnemonic-box { background: #f5f0ff; border-left: 4px solid var(--primary-light); padding: 12px 16px; border-radius: 0 8px 8px 0; text-align: left; margin-bottom: 16px; font-size: 0.9rem; line-height: 1.5; color: var(--text); }
+  .kana-example-box { background: #e8f5e9; border-left: 4px solid var(--success); padding: 12px 16px; border-radius: 0 8px 8px 0; text-align: left; margin-bottom: 20px; font-size: 0.9rem; line-height: 1.5; color: var(--text); }
+  
+  /* Drill mode */
+  .drill-zone { padding: 10px 0; }
+  .drill-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+  .drill-progress-bar { background: var(--border); border-radius: 6px; height: 8px; margin-bottom: 20px; overflow: hidden; }
+  .drill-progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
+  .drill-question-box { text-align: center; padding: 20px 10px; margin-bottom: 20px; }
+  .drill-question-label { font-size: 0.9rem; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
+  .drill-question-text { font-size: 2rem; font-weight: 800; color: var(--text); }
+  .drill-question-large-kana { font-size: 5rem; font-weight: 800; color: var(--primary); margin-top: 10px; }
+  .drill-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  @media (max-width: 539px) { .drill-options { grid-template-columns: 1fr; } }
+  .drill-feedback { padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem; line-height: 1.5; }
+  .drill-feedback.c { background: #e8f5e9; border: 1.5px solid var(--success); color: #1b5e20; }
+  .drill-feedback.w { background: #ffebee; border: 1.5px solid var(--danger); color: #b71c1c; }
+  
+  .drill-results { text-align: center; padding: 24px; }
+  .drill-results-score { font-size: 3.5rem; font-weight: 900; color: var(--primary); margin: 14px 0; }
 </style>
 </head>
 <body>
@@ -620,6 +667,9 @@
   <button class="mob-nav-btn" id="mob-nav-flashcards" onclick="App.showSection('flashcards')">
     <span class="mob-nav-icon">🃏</span><span>Cards</span>
   </button>
+  <button class="mob-nav-btn" id="mob-nav-tutorial" onclick="App.showSection('tutorial')">
+    <span class="mob-nav-icon">📖</span><span>Tutorial</span>
+  </button>
   <button class="mob-nav-btn" id="mob-nav-leaderboard" onclick="App.showSection('leaderboard')">
     <span class="mob-nav-icon">🏆</span><span>Ranks</span>
   </button>
@@ -649,6 +699,7 @@
     <div class="nav-menu" id="main-nav">
       <div class="nav-item active" onclick="App.showSection('home')">🏠 Home</div>
       <div class="nav-item" onclick="App.showSection('flashcards')">🃏 Flashcards</div>
+      <div class="nav-item" onclick="App.showSection('tutorial')">📖 Hiragana Tutorial</div>
       <div class="nav-item" onclick="App.showSection('leaderboard')">🏆 Leaderboard</div>
       <div style="margin-left:auto;display:flex;gap:5px;align-items:center;flex-wrap:wrap">
         <button id="in-app-n5" onclick="App.setLevel('N5')" style="padding:4px 10px;border-radius:14px;border:2px solid var(--primary);background:var(--primary);color:white;cursor:pointer;font-size:0.76rem;font-weight:700">🟢 N5</button>
@@ -978,6 +1029,102 @@
       </div>
     </div>
 
+    <!-- TUTORIAL SECTION -->
+    <div id="section-tutorial" class="hidden">
+      <!-- MAIN VIEW -->
+      <div id="tutorial-main-view" class="card fade-in">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+          <h2 style="margin:0">📖 Hiragana 3-Week Mastery Challenge</h2>
+          <span style="font-size:0.75rem;color:var(--muted)">Complete 3-Week Study Plan</span>
+        </div>
+        
+        <!-- Week Switcher Tabs -->
+        <div class="tutorial-week-tabs">
+          <div class="tutorial-week-tab active" id="tut-tab-week1" onclick="App.setTutorialWeek('week1')">📅 Week 1: Foundations</div>
+          <div class="tutorial-week-tab" id="tut-tab-week2" onclick="App.setTutorialWeek('week2')">📅 Week 2: Progression</div>
+          <div class="tutorial-week-tab" id="tut-tab-week3" onclick="App.setTutorialWeek('week3')">📅 Week 3: Mastery</div>
+        </div>
+
+        <!-- Syllabus Info Card -->
+        <div class="syllabus-card" id="tut-syllabus-card">
+          <div class="syllabus-title" id="tut-syllabus-title">Week 1: Foundations (Vowels & First Consonants)</div>
+          <p class="syllabus-desc" id="tut-syllabus-desc">Learn the basic vowels (A, I, U, E, O) and the K, S, T consonant rows. These 20 characters form the absolute baseline of the Japanese writing system.</p>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+            <div style="flex:1;background:var(--border);border-radius:4px;height:8px;overflow:hidden">
+              <div id="tut-progress-bar-fill" style="height:100%;background:var(--success);width:0%;transition:width 0.3s"></div>
+            </div>
+            <span style="font-size:0.8rem;font-weight:700;color:var(--success)" id="tut-progress-text">0 / 20 Learned</span>
+          </div>
+          <div class="syllabus-actions">
+            <button class="btn btn-primary" onclick="App.startTutorialDrill('week')">🎯 Start Week's Drill (10 Qs)</button>
+            <button class="btn btn-outline" onclick="App.startTutorialDrill('all')">🌍 Drill All Hiragana (10 Qs)</button>
+          </div>
+        </div>
+
+        <!-- Instructions -->
+        <p style="font-size:0.82rem;color:var(--muted);margin-bottom:12px;text-align:center">💡 Tap on any Hiragana below to view details, mnemonics, stroke orders, and pronunciation aids.</p>
+
+        <!-- Characters Grid -->
+        <div class="kana-grid" id="tut-kana-grid">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- DRILL ZONE VIEW -->
+      <div id="tutorial-drill-view" class="card fade-in hidden">
+        <div class="drill-zone">
+          <div class="drill-header">
+            <h3 style="margin:0;color:var(--primary);display:flex;align-items:center;gap:8px" id="drill-mode-title">🎯 Hiragana Drill</h3>
+            <span style="font-size:0.82rem;font-weight:700;color:var(--muted)" id="drill-progress-label">Question 1 of 10</span>
+          </div>
+          <div class="drill-progress-bar">
+            <div class="drill-progress-fill" id="drill-progress-fill"></div>
+          </div>
+
+          <!-- Dynamic Question -->
+          <div class="drill-question-box card" style="background:var(--bg);box-shadow:none;border:1px solid var(--border);padding:20px 10px;text-align:center">
+            <div class="drill-question-label" id="drill-q-label">Identify the Romaji for this character</div>
+            <div class="drill-question-text" id="drill-q-text">あ</div>
+          </div>
+
+          <!-- Multiple choice options -->
+          <div class="drill-options" id="drill-options-grid">
+            <!-- 4 buttons populated dynamically -->
+          </div>
+
+          <!-- Feedback and Mnemonics (hidden until answered) -->
+          <div id="drill-feedback-container" class="hidden">
+            <div class="drill-feedback" id="drill-feedback-box">
+              <strong>Correct!</strong> <span id="drill-feedback-explanation">あ (a) looks like an apple.</span>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px">
+            <button class="btn btn-outline" onclick="App.confirmQuitTutorialDrill()">✕ Quit Drill</button>
+            <button class="btn btn-primary" id="drill-btn-next" onclick="App.nextTutorialDrillQuestion()" disabled>Next Question →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- DRILL RESULTS VIEW -->
+      <div id="tutorial-drill-results-view" class="card fade-in hidden">
+        <div class="drill-results">
+          <span style="font-size:3.5rem">🎉</span>
+          <h2 style="margin:8px 0 0 0;color:var(--primary)">Drill Completed!</h2>
+          <p style="color:var(--muted);font-size:0.88rem">Wonderful effort! Here is your performance:</p>
+          
+          <div class="drill-results-score" id="drill-results-score">8 / 10</div>
+          <p id="drill-results-feedback" style="font-weight:600;color:var(--text);margin-bottom:24px;line-height:1.5">You are making fantastic progress! Keep practicing to master Week 1.</p>
+          
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="App.restartTutorialDrill()">🔄 Try Again</button>
+            <button class="btn btn-outline" onclick="App.exitTutorialDrill()">🏠 Back to Tutorial</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- LEADERBOARD SECTION -->
     <div id="section-leaderboard" class="hidden">
       <div class="card fade-in">
@@ -1026,6 +1173,43 @@
       <button class="btn btn-primary" style="flex:1" onclick="App.saveProfile()">Save</button>
       <button class="btn btn-outline" style="flex:1" onclick="App.closeProfile()">Cancel</button>
     </div>
+  </div>
+</div>
+
+<!-- TUTORIAL CHARACTER MODAL -->
+<div id="tutorial-character-modal" class="modal-overlay hidden" onclick="if(event.target===this) App.closeCharacterModal()">
+  <div class="modal-box fade-in kana-detail-box">
+    <div style="text-align:right;margin-top:-14px;margin-bottom:-6px">
+      <button onclick="App.closeCharacterModal()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--muted);font-weight:700">✕</button>
+    </div>
+    <div class="kana-detail-char" id="modal-char-display">あ</div>
+    
+    <div class="kana-detail-row">
+      <div class="kana-detail-item">
+        <span class="kana-detail-label">Romaji</span>
+        <span class="kana-detail-val" id="modal-romaji-display">a</span>
+      </div>
+      <div class="kana-detail-item">
+        <span class="kana-detail-label">Pronunciation</span>
+        <span class="kana-detail-val" id="modal-pronounce-display">ah (like father)</span>
+      </div>
+      <div class="kana-detail-item">
+        <span class="kana-detail-label">Strokes</span>
+        <span class="kana-detail-val" id="modal-strokes-display">3</span>
+      </div>
+    </div>
+
+    <div class="kana-mnemonic-box">
+      <strong style="display:block;margin-bottom:4px;color:var(--primary-light)">💡 Mnemonic / Memory Aid:</strong>
+      <span id="modal-mnemonic-display">Looks like an Apple with a stem.</span>
+    </div>
+
+    <div class="kana-example-box">
+      <strong style="display:block;margin-bottom:4px;color:var(--success)">📝 Example Word:</strong>
+      <span id="modal-example-display">あめ (ame - rain)</span>
+    </div>
+
+    <button class="btn btn-primary" style="width:100%" onclick="App.closeCharacterModal()">Got It! ✓</button>
   </div>
 </div>
 
@@ -1078,6 +1262,15 @@ const App = (() => {
   let pendingAvatarDataUrl = null;
   let _sbLbMode = 'practice';
   let _bannerTimeout = null;
+
+  // Tutorial State
+  let tutActiveWeek = 'week1';
+  let tutReadLetters = {};
+  let tutDrillQuestions = [];
+  let tutDrillIndex = 0;
+  let tutDrillScore = 0;
+  let tutDrillAnswered = false;
+  let tutDrillType = 'week';
 
   const LEVELS = ['N5','N4','N3','N2','N1'];
   const LEVEL_EMOJI = { N5:'🟢', N4:'🔵', N3:'🟠', N2:'🟣', N1:'🔴' };
@@ -1356,7 +1549,7 @@ const App = (() => {
 
   // ── Sections ──────────────────────────────────────────────
   function showSection(sec) {
-    ['home','quiz','results','leaderboard','flashcards'].forEach(s=>{document.getElementById('section-'+s).classList.add('hidden');});
+    ['home','quiz','results','leaderboard','flashcards','tutorial'].forEach(s=>{document.getElementById('section-'+s).classList.add('hidden');});
     document.getElementById('section-'+sec).classList.remove('hidden');
     document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
     if(sec==='home'){
@@ -1374,11 +1567,17 @@ const App = (() => {
       if(f)f.classList.add('active');
       fcInitDeck();
     }
+    if(sec==='tutorial'){
+      const t=document.querySelector('#main-nav [onclick*="\'tutorial\'"]');
+      if(t)t.classList.add('active');
+      initTutorial();
+    }
     const mobNav=document.getElementById('mobile-bottom-nav');
     const inQuiz=(sec==='quiz'||sec==='results');
     if(mobNav){mobNav.style.display=inQuiz?'none':'';document.body.style.paddingBottom=inQuiz?'0':'';}
     document.getElementById('mob-nav-home')?.classList.toggle('active',sec==='home');
     document.getElementById('mob-nav-flashcards')?.classList.toggle('active',sec==='flashcards');
+    document.getElementById('mob-nav-tutorial')?.classList.toggle('active',sec==='tutorial');
     document.getElementById('mob-nav-leaderboard')?.classList.toggle('active',sec==='leaderboard');
     if(sec==='quiz'||sec==='home')stopTimer();
   }
@@ -2072,6 +2271,385 @@ const App = (() => {
     if (e.key === 'ArrowLeft'  && fcFlipped) { e.preventDefault(); fcRate('again'); }
   });
 
+  // ── Hiragana Tutorial ──────────────────────────────────────
+  const HIRAGANA_DATA = {
+    week1: [
+      { kana: 'あ', romaji: 'a', pronunciation: 'ah (like f-a-ther)', mnemonic: 'Looks like an Apple with a stem', example: 'あめ (ame - rain)', strokes: '3' },
+      { kana: 'い', romaji: 'i', pronunciation: 'ee (like m-ee-t)', mnemonic: 'Looks like two lines of "easy" or "eel"', example: 'いぬ (inu - dog)', strokes: '2' },
+      { kana: 'う', romaji: 'u', pronunciation: 'oo (like t-oo)', mnemonic: 'Looks like someone jumping or a "U" on its side', example: 'うみ (umi - sea)', strokes: '2' },
+      { kana: 'え', romaji: 'e', pronunciation: 'eh (like m-e-t)', mnemonic: 'Looks like an exotic bird or "Energetic runner"', example: 'えん (en - yen)', strokes: '2' },
+      { kana: 'お', romaji: 'o', pronunciation: 'oh (like b-oa-t)', mnemonic: 'Looks like a golfer hitting a ball "On the green"', example: 'おちゃ (ocha - green tea)', strokes: '3' },
+      { kana: 'か', romaji: 'ka', pronunciation: 'kah', mnemonic: 'Looks like a "Kite" flying in the wind', example: 'かさ (kasa - umbrella)', strokes: '3' },
+      { kana: 'き', romaji: 'ki', pronunciation: 'kee', mnemonic: 'Looks like a "Key" used to open doors', example: 'きもの (kimono)', strokes: '4' },
+      { kana: 'く', romaji: 'ku', pronunciation: 'koo', mnemonic: 'Looks like an open "Cuckoo" bird beak', example: 'くつ (kutsu - shoes)', strokes: '1' },
+      { kana: 'け', romaji: 'ke', pronunciation: 'keh', mnemonic: 'Looks like a "Keg" of beer or a shield', example: 'けいたい (keitai - phone)', strokes: '3' },
+      { kana: 'こ', romaji: 'ko', pronunciation: 'koh', mnemonic: 'Looks like two "Cozy" fish swimming together', example: 'こえ (koe - voice)', strokes: '2' },
+      { kana: 'さ', romaji: 'sa', pronunciation: 'sah', mnemonic: 'Looks like a signpost or "Saddle" on a horse', example: 'さかな (sakana - fish)', strokes: '3' },
+      { kana: 'し', romaji: 'shi', pronunciation: 'shee', mnemonic: 'Looks like a fishing "Hook" or "She" has long hair', example: 'しお (shio - salt)', strokes: '1' },
+      { kana: 'す', romaji: 'su', pronunciation: 'soo', mnemonic: 'Looks like a "Soup" spoon looping', example: 'すし (sushi)', strokes: '2' },
+      { kana: 'せ', romaji: 'se', pronunciation: 'seh', mnemonic: 'Looks like "Saying" something on a stage', example: 'せんせい (sensei - teacher)', strokes: '3' },
+      { kana: 'そ', romaji: 'so', pronunciation: 'soh', mnemonic: 'Looks like a "Sewing" stitch or zigzag', example: 'そら (sora - sky)', strokes: '1' },
+      { kana: 'た', romaji: 'ta', pronunciation: 'tah', mnemonic: 'Looks like the letters "T" and "a" put together', example: 'たまご (tamago - egg)', strokes: '4' },
+      { kana: 'ち', romaji: 'chi', pronunciation: 'chee', mnemonic: 'Looks like a "Cheerleader" doing a split', example: 'ちず (chizu - map)', strokes: '2' },
+      { kana: 'つ', romaji: 'tsu', pronunciation: 'tsoo', mnemonic: 'Looks like a big "Tsunami" wave', example: 'つくえ (tsukue - desk)', strokes: '1' },
+      { kana: 'て', romaji: 'te', pronunciation: 'teh', mnemonic: 'Looks like a "Tail" or a hand ("Te" in Japanese)', example: 'てがみ (tegami - letter)', strokes: '1' },
+      { kana: 'と', romaji: 'to', pronunciation: 'toh', mnemonic: 'Looks like a splinter in a "Toe"', example: 'ともだち (tomodachi - friend)', strokes: '2' }
+    ],
+    week2: [
+      { kana: 'な', romaji: 'na', pronunciation: 'nah', mnemonic: 'Looks like a "Nun" praying next to a cross', example: 'なつ (natsu - summer)', strokes: '4' },
+      { kana: 'に', romaji: 'ni', pronunciation: 'nee', mnemonic: 'Looks like a "Knee" or two needles', example: 'にく (niku - meat)', strokes: '3' },
+      { kana: 'ぬ', romaji: 'nu', pronunciation: 'noo', mnemonic: 'Looks like chopsticks grabbing "Noodles"', example: 'ぬま (numa - swamp)', strokes: '2' },
+      { kana: 'ね', romaji: 'ne', pronunciation: 'neh', mnemonic: 'Looks like a "Net" catching a fish', example: 'ねこ (neko - cat)', strokes: '2' },
+      { kana: 'の', romaji: 'no', pronunciation: 'noh', mnemonic: 'A circle with a slash - "No" entry sign', example: 'のり (nori - seaweed)', strokes: '1' },
+      { kana: 'は', romaji: 'ha', pronunciation: 'hah', mnemonic: 'Looks like a hockey stick and "Ha" letter', example: 'はな (hana - flower)', strokes: '3' },
+      { kana: 'ひ', romaji: 'hi', pronunciation: 'hee', mnemonic: 'Looks like a big laughing mouth ("He-He-He!")', example: 'ひかり (hikari - light)', strokes: '1' },
+      { kana: 'ふ', romaji: 'fu', pronunciation: 'foo', mnemonic: 'Looks like Mt. "Fuji" or a funny dancer', example: 'ふね (fune - ship)', strokes: '4' },
+      { kana: 'へ', romaji: 'he', pronunciation: 'heh', mnemonic: 'Looks like Mount St. "Helens" or a hill', example: 'へや (heya - room)', strokes: '1' },
+      { kana: 'ほ', romaji: 'ho', pronunciation: 'hoh', mnemonic: 'Looks like "Ha" but wearing a "Hot" hat', example: 'ほん (hon - book)', strokes: '4' },
+      { kana: 'ま', romaji: 'ma', pronunciation: 'mah', mnemonic: 'Looks like a "Mast" of a sailboat', example: 'まち (machi - town)', strokes: '3' },
+      { kana: 'み', romaji: 'mi', pronunciation: 'mee', mnemonic: 'Looks like "Me" at 21 years old', example: 'みみ (mimi - ear)', strokes: '2' },
+      { kana: 'む', romaji: 'mu', pronunciation: 'moo', mnemonic: 'Looks like a "Mooing" cow', example: 'むし (mushi - insect)', strokes: '3' },
+      { kana: 'め', romaji: 'me', pronunciation: 'meh', mnemonic: 'Looks like a "Messy" eye ("Me" in Japanese)', example: 'めがね (megane - glasses)', strokes: '2' },
+      { kana: 'も', romaji: 'mo', pronunciation: 'moh', mnemonic: 'Looks like a fish hook - "More" fish to catch', example: 'もり (mori - forest)', strokes: '3' },
+      { kana: 'や', romaji: 'ya', pronunciation: 'yah', mnemonic: 'Looks like a "Yak" with long horns', example: 'やま (yama - mountain)', strokes: '3' },
+      { kana: 'ゆ', romaji: 'yu', pronunciation: 'yoo', mnemonic: 'Looks like a fish or a "U-turn" symbol', example: 'ゆき (yuki - snow)', strokes: '2' },
+      { kana: 'よ', romaji: 'yo', pronunciation: 'yoh', mnemonic: 'Looks like a "Yo-yo" hanging from a hand', example: 'よる (yoru - night)', strokes: '2' },
+      { kana: 'ら', romaji: 'ra', pronunciation: 'rah', mnemonic: 'Looks like a "Rabbit" hopping', example: 'らいげつ (raigetsu - next month)', strokes: '2' },
+      { kana: 'り', romaji: 'ri', pronunciation: 'ree', mnemonic: 'Looks like "Ribbons" in the wind', example: 'りんご (ringo - apple)', strokes: '2' },
+      { kana: 'る', romaji: 'ru', pronunciation: 'roo', mnemonic: 'Looks like a crazy loop of "Route" 66', example: 'るす (rusu - absence)', strokes: '2' },
+      { kana: 'れ', romaji: 're', pronunciation: 'reh', mnemonic: 'Looks like someone "Reaching" or resting', example: 'れいぞうこ (reizouko - fridge)', strokes: '2' },
+      { kana: 'ろ', romaji: 'ro', pronunciation: 'roh', mnemonic: 'Looks like "ru" but a robber stole the loop!', example: 'ろく (roku - six)', strokes: '1' },
+      { kana: 'わ', romaji: 'wa', pronunciation: 'wah', mnemonic: 'Looks like a "Wasp" flying up fast', example: 'わたし (watashi - me)', strokes: '2' },
+      { kana: 'を', romaji: 'wo', pronunciation: 'woh', mnemonic: 'An "Olympic disk thrower" shouting "Whoa!"', example: 'を (object particle)', strokes: '3' },
+      { kana: 'ん', romaji: 'n', pronunciation: 'n', mnemonic: 'Looks like a cursive lowercase letter "n"', example: 'にほん (nihon - Japan)', strokes: '1' }
+    ],
+    week3: [
+      { kana: 'が', romaji: 'ga', pronunciation: 'gah', mnemonic: 'The "ka" sound voiced with dakuten marks', example: 'がっこう (gakkou - school)', strokes: '5' },
+      { kana: 'ぎ', romaji: 'gi', pronunciation: 'gee', mnemonic: '"ki" with dakuten marks', example: 'ぎんこう (ginkou - bank)', strokes: '6' },
+      { kana: 'ぐ', romaji: 'gu', pronunciation: 'goo', mnemonic: '"ku" with dakuten marks', example: 'ぐんま (Gunma prefecture)', strokes: '3' },
+      { kana: 'げ', romaji: 'ge', pronunciation: 'geh', mnemonic: '"ke" with dakuten marks', example: 'げんき (genki - healthy)', strokes: '5' },
+      { kana: 'ご', romaji: 'go', pronunciation: 'goh', mnemonic: '"ko" with dakuten marks', example: 'ごはん (gohan - rice/meal)', strokes: '4' },
+      { kana: 'ざ', romaji: 'za', pronunciation: 'zah', mnemonic: '"sa" with dakuten marks', example: 'ざっし (zasshi - magazine)', strokes: '5' },
+      { kana: 'じ', romaji: 'ji', pronunciation: 'jee', mnemonic: '"shi" with dakuten marks', example: 'じしょ (jisho - dictionary)', strokes: '3' },
+      { kana: 'ず', romaji: 'zu', pronunciation: 'zoo', mnemonic: '"su" with dakuten marks', example: 'ちず (chizu - map)', strokes: '4' },
+      { kana: 'ぜ', romaji: 'ze', pronunciation: 'zeh', mnemonic: '"se" with dakuten marks', example: 'ぜんぶ (zenbu - everything)', strokes: '5' },
+      { kana: 'ぞ', romaji: 'zo', pronunciation: 'zoh', mnemonic: '"so" with dakuten marks', example: 'かぞく (kazoku - family)', strokes: '3' },
+      { kana: 'だ', romaji: 'da', pronunciation: 'dah', mnemonic: '"ta" with dakuten marks', example: 'くだもの (kudamono - fruit)', strokes: '6' },
+      { kana: 'ぢ', romaji: 'ji', pronunciation: 'jee', mnemonic: '"chi" with dakuten marks (rarely used)', example: 'はなぢ (hanaji - nosebleed)', strokes: '4' },
+      { kana: 'づ', romaji: 'zu', pronunciation: 'zoo', mnemonic: '"tsu" with dakuten marks (rarely used)', example: 'つづく (tsuduku - to continue)', strokes: '3' },
+      { kana: 'で', romaji: 'de', pronunciation: 'deh', mnemonic: '"te" with dakuten marks', example: 'でんわ (denwa - telephone)', strokes: '3' },
+      { kana: 'ど', romaji: 'do', pronunciation: 'doh', mnemonic: '"to" with dakuten marks', example: 'どこ (doko - where)', strokes: '4' },
+      { kana: 'ば', romaji: 'ba', pronunciation: 'bah', mnemonic: '"ha" with dakuten marks', example: 'ばら (bara - rose)', strokes: '5' },
+      { kana: 'び', romaji: 'bi', pronunciation: 'bee', mnemonic: '"hi" with dakuten marks', example: 'びじゅつかん (bijutsukan - museum)', strokes: '3' },
+      { kana: 'ぶ', romaji: 'bu', pronunciation: 'boo', mnemonic: '"fu" with dakuten marks', example: 'ぶた (buta - pig)', strokes: '6' },
+      { kana: 'べ', romaji: 'be', pronunciation: 'beh', mnemonic: '"he" with dakuten marks', example: 'べんきょう (benkyou - studying)', strokes: '3' },
+      { kana: 'ぼ', romaji: 'bo', pronunciation: 'boh', mnemonic: '"ho" with dakuten marks', example: 'ぼうし (boushi - hat)', strokes: '6' },
+      { kana: 'ぱ', romaji: 'pa', pronunciation: 'pah', mnemonic: '"ha" with handakuten (p-circle) mark', example: 'ぱん (pan - bread)', strokes: '4' },
+      { kana: 'ぴ', romaji: 'pi', pronunciation: 'pee', mnemonic: '"hi" with handakuten mark', example: 'えんぴつ (enpitsu - pencil)', strokes: '2' },
+      { kana: 'ぷ', romaji: 'pu', pronunciation: 'poo', mnemonic: '"fu" with handakuten mark', example: 'ぷーる (pu-ru - pool)', strokes: '5' },
+      { kana: 'ぺ', romaji: 'pe', pronunciation: 'peh', mnemonic: '"he" with handakuten mark', example: 'ぺん (pen)', strokes: '2' },
+      { kana: 'ぽ', romaji: 'po', pronunciation: 'poh', mnemonic: '"ho" with handakuten mark', example: 'さんぽ (sanpo - walk)', strokes: '5' },
+      { kana: 'きゃ', romaji: 'kya', pronunciation: 'kyah', mnemonic: 'き (ki) + small ゃ (ya)', example: 'きゃく (kyaku - guest)', strokes: '7' },
+      { kana: 'きゅ', romaji: 'kyu', pronunciation: 'kyoo', mnemonic: 'き (ki) + small ゅ (yu)', example: 'きゅうり (kyuuri - cucumber)', strokes: '6' },
+      { kana: 'きょ', romaji: 'kyo', pronunciation: 'kyoh', mnemonic: 'き (ki) + small ょ (yo)', example: 'きょねん (kyonen - last year)', strokes: '6' },
+      { kana: 'しゃ', romaji: 'sha', pronunciation: 'shah', mnemonic: 'し (shi) + small ゃ (ya)', example: 'しゃしん (shashin - photo)', strokes: '4' },
+      { kana: 'しゅ', romaji: 'shu', pronunciation: 'shoo', mnemonic: 'し (shi) + small ゅ (yu)', example: 'しゅくだい (shukudai - homework)', strokes: '3' },
+      { kana: 'しょ', romaji: 'sho', pronunciation: 'shoh', mnemonic: 'し (shi) + small ょ (yo)', example: 'しょくどう (shokudou - canteen)', strokes: '3' },
+      { kana: 'ちゃ', romaji: 'cha', pronunciation: 'chah', mnemonic: 'ち (chi) + small ゃ (ya)', example: 'おちゃ (ocha - tea)', strokes: '5' },
+      { kana: 'ちゅ', romaji: 'chu', pronunciation: 'choo', mnemonic: 'ち (chi) + small ゅ (yu)', example: 'ちゅうしゃじょう (parking)', strokes: '4' },
+      { kana: 'ちょ', romaji: 'cho', pronunciation: 'choh', mnemonic: 'ち (chi) + small ょ (yo)', example: 'チョコレート (chocolate)', strokes: '4' },
+      { kana: 'にゃ', romaji: 'nya', pronunciation: 'nyah', mnemonic: 'に (ni) + small ゃ (ya)', example: 'にゃー (meow)', strokes: '6' },
+      { kana: 'ひゃ', romaji: 'hya', pronunciation: 'hyah', mnemonic: 'ひ (hi) + small ゃ (ya)', example: 'ひゃく (hundred)', strokes: '4' },
+      { kana: 'みゃ', romaji: 'mya', pronunciation: 'myah', mnemonic: 'み (mi) + small ゃ (ya)', example: 'みゃく (pulse)', strokes: '5' },
+      { kana: 'りゃ', romaji: 'rya', pronunciation: 'ryah', mnemonic: 'り (ri) + small ゃ (ya)', example: 'りゃく (abbreviation)', strokes: '5' }
+    ]
+  };
+
+  const SYLLABUS_INFO = {
+    week1: {
+      title: "📅 Week 1: Foundations (Vowels & First Consonants)",
+      desc: "Learn the basic vowels (A, I, U, E, O) and the K, S, T consonant rows. These 20 characters form the absolute baseline of the Japanese writing system."
+    },
+    week2: {
+      title: "📅 Week 2: Progression (N, H, M, Y, R, W Rows + N)",
+      desc: "Advance through the mid-consonant groups, the three Y-vowel combinations, the liquid R-row, and the classic nasal sound 'n'. This rounds out the standard 46 core kana."
+    },
+    week3: {
+      title: "📅 Week 3: Mastery (Dakuten, Handakuten & Digraphs)",
+      desc: "Master modified sounds using dakuten/handakuten dots and circles (G, Z, D, B, P), plus the Yōon compound sounds (kya, sho, cha). Complete your Hiragana training!"
+    }
+  };
+
+  function initTutorial() {
+    const saved = localStorage.getItem('tut_learned_' + username);
+    try {
+      tutReadLetters = saved ? JSON.parse(saved) : {};
+    } catch(e) {
+      tutReadLetters = {};
+    }
+    setTutorialWeek(tutActiveWeek);
+  }
+
+  function setTutorialWeek(week) {
+    tutActiveWeek = week;
+    document.querySelectorAll('.tutorial-week-tab').forEach(t => t.classList.toggle('active', t.id === 'tut-tab-' + week));
+    
+    const info = SYLLABUS_INFO[week];
+    document.getElementById('tut-syllabus-title').textContent = info.title;
+    document.getElementById('tut-syllabus-desc').textContent = info.desc;
+    
+    updateTutorialProgress();
+    renderKanaGrid();
+  }
+
+  function updateTutorialProgress() {
+    const activeList = HIRAGANA_DATA[tutActiveWeek];
+    const total = activeList.length;
+    let readCount = 0;
+    activeList.forEach(item => {
+      if (tutReadLetters[item.kana]) readCount++;
+    });
+    
+    const pct = total > 0 ? (readCount / total) * 100 : 0;
+    document.getElementById('tut-progress-bar-fill').style.width = pct + '%';
+    document.getElementById('tut-progress-text').textContent = readCount + ' / ' + total + ' Learned';
+  }
+
+  function renderKanaGrid() {
+    const grid = document.getElementById('tut-kana-grid');
+    grid.innerHTML = '';
+    
+    const activeList = HIRAGANA_DATA[tutActiveWeek];
+    activeList.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'kana-card' + (tutReadLetters[item.kana] ? ' read' : '');
+      card.innerHTML = `
+        <div class="k-char">${item.kana}</div>
+        <div class="k-romaji">${item.romaji}</div>
+      `;
+      card.onclick = () => openCharacterModal(item);
+      grid.appendChild(card);
+    });
+  }
+
+  function openCharacterModal(item) {
+    document.getElementById('modal-char-display').textContent = item.kana;
+    document.getElementById('modal-romaji-display').textContent = item.romaji;
+    document.getElementById('modal-pronounce-display').textContent = item.pronunciation;
+    document.getElementById('modal-strokes-display').textContent = item.strokes;
+    document.getElementById('modal-mnemonic-display').textContent = item.mnemonic;
+    document.getElementById('modal-example-display').textContent = item.example;
+    
+    if (!tutReadLetters[item.kana]) {
+      tutReadLetters[item.kana] = true;
+      localStorage.setItem('tut_learned_' + username, JSON.stringify(tutReadLetters));
+      updateTutorialProgress();
+      renderKanaGrid();
+    }
+    
+    document.getElementById('tutorial-character-modal').classList.remove('hidden');
+  }
+
+  function closeCharacterModal() {
+    document.getElementById('tutorial-character-modal').classList.add('hidden');
+  }
+
+  function startTutorialDrill(type) {
+    tutDrillType = type;
+    let pool = [];
+    if (type === 'week') {
+      pool = [...HIRAGANA_DATA[tutActiveWeek]];
+    } else {
+      pool = [...HIRAGANA_DATA.week1, ...HIRAGANA_DATA.week2, ...HIRAGANA_DATA.week3];
+    }
+    
+    if (pool.length < 4) {
+      alert("Not enough characters to drill!");
+      return;
+    }
+    
+    tutDrillQuestions = [];
+    const shuffledPool = [...pool].sort(() => 0.5 - Math.random());
+    const count = Math.min(10, shuffledPool.length);
+    
+    for (let i = 0; i < count; i++) {
+      const target = shuffledPool[i];
+      const qType = Math.random() > 0.5 ? 0 : 1;
+      
+      const wrongPool = pool.filter(x => x.kana !== target.kana);
+      const wrongShuffled = wrongPool.sort(() => 0.5 - Math.random()).slice(0, 3);
+      
+      const options = [];
+      if (qType === 0) {
+        options.push({ text: target.romaji, isCorrect: true, data: target });
+        wrongShuffled.forEach(w => options.push({ text: w.romaji, isCorrect: false, data: w }));
+      } else {
+        options.push({ text: target.kana, isCorrect: true, data: target });
+        wrongShuffled.forEach(w => options.push({ text: w.kana, isCorrect: false, data: w }));
+      }
+      
+      options.sort(() => 0.5 - Math.random());
+      
+      tutDrillQuestions.push({
+        type: qType,
+        target: target,
+        options: options
+      });
+    }
+    
+    tutDrillIndex = 0;
+    tutDrillScore = 0;
+    
+    document.getElementById('tutorial-main-view').classList.add('hidden');
+    document.getElementById('tutorial-drill-results-view').classList.add('hidden');
+    document.getElementById('tutorial-drill-view').classList.remove('hidden');
+    
+    const label = type === 'week' ? 'Active Week Drill' : 'All Hiragana Drill';
+    document.getElementById('drill-mode-title').innerHTML = `🎯 ${label}`;
+    
+    renderDrillQuestion();
+  }
+
+  function renderDrillQuestion() {
+    tutDrillAnswered = false;
+    document.getElementById('drill-btn-next').disabled = true;
+    document.getElementById('drill-feedback-container').classList.add('hidden');
+    
+    const q = tutDrillQuestions[tutDrillIndex];
+    const total = tutDrillQuestions.length;
+    
+    document.getElementById('drill-progress-label').textContent = `Question ${tutDrillIndex + 1} of ${total}`;
+    const progressPct = ((tutDrillIndex) / total) * 100;
+    document.getElementById('drill-progress-fill').style.width = progressPct + '%';
+    
+    const labelEl = document.getElementById('drill-q-label');
+    const textEl = document.getElementById('drill-q-text');
+    
+    if (q.type === 0) {
+      labelEl.textContent = 'Identify the Romaji for this character:';
+      textEl.innerHTML = `<span class="drill-question-large-kana">${q.target.kana}</span>`;
+    } else {
+      labelEl.textContent = `Which character represents the sound '${q.target.romaji}'?`;
+      textEl.innerHTML = `<span class="drill-question-large-kana" style="font-family:sans-serif;color:var(--text);font-size:3.5rem">${q.target.romaji}</span>`;
+    }
+    
+    const grid = document.getElementById('drill-options-grid');
+    grid.innerHTML = '';
+    
+    q.options.forEach((opt, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-outline option-btn';
+      btn.style.width = '100%';
+      btn.style.fontSize = q.type === 1 ? '1.8rem' : '1.1rem';
+      btn.style.minHeight = '55px';
+      btn.textContent = opt.text;
+      btn.onclick = () => selectDrillOption(btn, opt);
+      grid.appendChild(btn);
+    });
+  }
+
+  function selectDrillOption(clickedBtn, option) {
+    if (tutDrillAnswered) return;
+    tutDrillAnswered = true;
+    
+    const q = tutDrillQuestions[tutDrillIndex];
+    const grid = document.getElementById('drill-options-grid');
+    const btns = grid.querySelectorAll('.option-btn');
+    
+    btns.forEach((btn, idx) => {
+      const opt = q.options[idx];
+      btn.disabled = true;
+      if (opt.isCorrect) {
+        btn.classList.add('ta-correct');
+      } else if (opt === option) {
+        btn.classList.add('ta-wrong');
+      }
+    });
+    
+    const fbBox = document.getElementById('drill-feedback-box');
+    const fbExplanation = document.getElementById('drill-feedback-explanation');
+    
+    if (option.isCorrect) {
+      tutDrillScore++;
+      fbBox.className = 'drill-feedback c';
+      fbBox.querySelector('strong').textContent = 'Correct! 🎉';
+    } else {
+      fbBox.className = 'drill-feedback w';
+      fbBox.querySelector('strong').textContent = 'Incorrect ✕';
+    }
+    
+    fbExplanation.innerHTML = `
+      <strong>「${q.target.kana}」 (${q.target.romaji})</strong>: ${q.target.mnemonic}<br>
+      <em>Example:</em> ${q.target.example}
+    `;
+    
+    document.getElementById('drill-feedback-container').classList.remove('hidden');
+    document.getElementById('drill-btn-next').disabled = false;
+  }
+
+  function nextTutorialDrillQuestion() {
+    tutDrillIndex++;
+    const total = tutDrillQuestions.length;
+    
+    if (tutDrillIndex < total) {
+      renderDrillQuestion();
+    } else {
+      document.getElementById('drill-progress-fill').style.width = '100%';
+      document.getElementById('tutorial-drill-view').classList.add('hidden');
+      document.getElementById('drill-results-score').textContent = `${tutDrillScore} / ${total}`;
+      
+      const feedbackEl = document.getElementById('drill-results-feedback');
+      const pct = (tutDrillScore / total) * 100;
+      
+      if (pct === 100) {
+        feedbackEl.textContent = "Absolute perfection! 🌟 You have fully mastered these characters. Ready to continue your Japanese journey?";
+      } else if (pct >= 80) {
+        feedbackEl.textContent = "Incredible job! 🚀 You have a fantastic grasp of these characters. Keep it up!";
+      } else if (pct >= 50) {
+        feedbackEl.textContent = "Good progress! 👍 Spaced repetition and daily practice will help you get a perfect score next time.";
+      } else {
+        feedbackEl.textContent = "Keep practicing! 📖 Learning Japanese is a marathon, not a sprint. Tap the letters to review their mnemonics and try again!";
+      }
+      
+      document.getElementById('tutorial-drill-results-view').classList.remove('hidden');
+    }
+  }
+
+  function confirmQuitTutorialDrill() {
+    if (confirm("Are you sure you want to quit this drill? Your current score will not be saved.")) {
+      exitTutorialDrill();
+    }
+  }
+
+  function exitTutorialDrill() {
+    document.getElementById('tutorial-drill-view').classList.add('hidden');
+    document.getElementById('tutorial-drill-results-view').classList.add('hidden');
+    document.getElementById('tutorial-main-view').classList.remove('hidden');
+    updateTutorialProgress();
+    renderKanaGrid();
+  }
+
+  function restartTutorialDrill() {
+    tutDrillQuestions.forEach(q => {
+      q.options.sort(() => 0.5 - Math.random());
+    });
+    tutDrillQuestions.sort(() => 0.5 - Math.random());
+    tutDrillIndex = 0;
+    tutDrillScore = 0;
+    document.getElementById('tutorial-drill-results-view').classList.add('hidden');
+    document.getElementById('tutorial-drill-view').classList.remove('hidden');
+    renderDrillQuestion();
+  }
+
+  // Keyboard shortcuts (Space = flip, → = know, ← = again)
+  document.addEventListener('keydown', e => {
+    const sec = document.getElementById('section-flashcards');
+    if (!sec || sec.classList.contains('hidden')) return;
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); fcFlipCard(); }
+    if (e.key === 'ArrowRight' && fcFlipped) { e.preventDefault(); fcRate('know'); }
+    if (e.key === 'ArrowLeft'  && fcFlipped) { e.preventDefault(); fcRate('again'); }
+  });
+
   // ── Public API ────────────────────────────────────────────
   return {
     setLevel, handleLogin, selectReturningUser, cancelVerify, showForgotFlow, cancelForgot, submitForgot,
@@ -2079,7 +2657,8 @@ const App = (() => {
     showSection, selectMode, setDiff, setSection, startSession, nextQuestion, prevQuestion, confirmQuit, finishSession,
     setLbMode, setLbPeriod, setSidebarLbMode,
     closeBanner,
-    fcFlipCard, fcRate, fcSetSection, fcRestart
+    fcFlipCard, fcRate, fcSetSection, fcRestart,
+    setTutorialWeek, closeCharacterModal, startTutorialDrill, selectDrillOption, nextTutorialDrillQuestion, confirmQuitTutorialDrill, exitTutorialDrill, restartTutorialDrill
   };
 })();
 </script>

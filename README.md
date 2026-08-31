@@ -21,6 +21,7 @@ Practice with quizzes, simulate real exams, race against the clock in Time Attac
 | 🔥 **Daily Streak** | Tracks consecutive study days |
 | 👤 **User Profiles** | Name + PIN login, avatar upload, security question |
 | 📱 **Fully Responsive** | Mobile bottom nav, desktop sidebar, all screen sizes |
+| 📖 **Hiragana Tutorial** | Interactive 3-Week Challenge with audio guidance, stroke order & dynamic drills |
 
 ---
 
@@ -123,6 +124,12 @@ See [`app/DOCS.md`](app/DOCS.md) for full technical documentation.
 - **Keyboard shortcuts**: `Space` = flip · `→` = Know It · `←` = Review Again
 - Filter by section: All / Vocabulary / Grammar / Kanji
 
+### 📖 Hiragana 3-Week Mastery Challenge
+- **Structured Schedule**: Program split into Week 1 (Foundations), Week 2 (Progression), and Week 3 (Mastery)
+- **Interactive Syllabus & Cards**: Tap any character to read translation, pronunciation guidelines, writing strokes, and mnemonic memory aids
+- **Dynamic Drills**: Generates randomized 10-question quizzes for either the active week or all Hiragana, testing both Kana-to-Romaji and Romaji-to-Kana identification
+- **Progress Preservation**: Automatically marks characters as learned and saves progress per user to `localStorage`
+
 ---
 
 ## 🔥 Difficulty Levels
@@ -195,7 +202,8 @@ See the detailed guide in [`app/DOCS.md → Adding Questions`](app/DOCS.md#addin
 - [ ] N2 question bank
 - [ ] N1 question bank
 - [ ] N2 / N1 flashcards
-- [ ] Hiragana & Katakana drill mode
+- [x] Hiragana tutorial & dynamic drills (3-Week Challenge)
+- [ ] Katakana tutorial & dynamic drills
 - [ ] Audio pronunciation (Web Speech API)
 - [ ] Spaced repetition system (SRS) for flashcards
 - [ ] Admin panel for question management
